@@ -1,0 +1,31 @@
+# Virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Ruff
+.ruff_cache/
+
+# Pytest
+.pytest_cache/
+
+# Mypy (if used later)
+.mypy_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Coverage
+.coverage
+coverage.xml
+htmlcov/
+
+# IDE
+.vscode/
+
+# Environment variables
+.env
