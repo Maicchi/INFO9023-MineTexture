@@ -61,7 +61,7 @@ Python scripts can be found in /scripts to upload textures packs into the bucket
 - A bucket "output_data_mintexture" containing the images generated.
 
 ### Firebase
-We have "output-minetexture" a database that follows the output file tree.
+We have "output-minetexture" a firebase that follows the output file tree.
 A python script can be found in /scripts to handle user requests to create a pack as well as updating its information when image are generated.
 
 ## References
