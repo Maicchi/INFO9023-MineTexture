@@ -1,0 +1,52 @@
+[general]
+enable_bucket = true
+
+[model]
+pretrained_model_name_or_path = "${PRETRAINED_MODEL_PATH_DOCKER}"
+
+[save]
+output_dir    = "${MINETEXTURE_CHECKPOINTS_OUTPUT_FOLDER_PATH}/${RUN_TIMESTAMP}"
+output_name   = "Minecraft-Textures"
+save_model_as = "safetensors"
+save_precision = "fp16"
+save_every_n_epochs = 2
+
+[training]
+resolution       = "${INPUT_DIM},${INPUT_DIM}"
+train_batch_size = 8
+learning_rate    = 2e-4
+text_encoder_lr  = 1e-4
+unet_lr          = 2e-4
+max_train_epochs = 60
+seed             = 42
+cache_latents    = true
+xformers         = true
+clip_skip        = 1
+gradient_accumulation_steps = 4
+max_data_loader_n_workers   = 8
+noise_offset     = 0.1
+optimizer_type   = "AdamW"
+caption_dropout_rate = 0.05
+min_snr_gamma    = 5
+
+[lr_scheduler]
+lr_scheduler     = "cosine_with_restarts"
+lr_warmup_steps  = 500
+lr_scheduler_num_cycles = 3
+
+[dataset]
+train_data_dir    = "${TRAINING_DATASET_PATH}"
+caption_extension = ".txt"
+keep_tokens       = 0
+max_token_length  = 150
+bucket_no_upscale = true
+bucket_reso_steps = 64
+
+[network]
+network_module = "networks.lora"
+network_dim    = "${LORA_DIM}"
+network_alpha  = "${LORA_ALPHA}"
+
+[logging]
+log_with = "wandb"
+log_tracker_name = "${WANDB_PROJECT_NAME}"
