@@ -29,11 +29,11 @@ Since our project is composed of:
 - ML pre-trained models for image generation
 - Output: images + information on the output
 
-It will be more interesting to use Google Cloud Storage (GCS) and for the output, combine it with CloudSQL.
+It will be more interesting to use Google Cloud Storage (GCS) and for the output, use GCS for the images and the main structure in Firestore.
 
 ### File tree
 **Training dataset**:
-train/
+training-data-minetexture/
 | &nbsp; labels.csv
 | &nbsp; ressource_pack_1_name/
 | &nbsp; | &nbsp; category_name/
@@ -42,7 +42,7 @@ train/
 Where the label.csv will contain the path, the main style and the category of the item for each item from all packs.
 
 **Output**:
-Output/
+output-minetexture/
 | &nbsp; ID_output
 Where the ID_output is a firestore database file that will be structured like this:
 ID_output:{
@@ -57,7 +57,12 @@ Where the images_url is an url to the image generated which will be stored in a 
 ### Buckets
 We have:
 - A bucket "training_data_minetexture" following the training dataset file tree.
+Python scripts can be found in /scripts to upload textures packs into the bucket and download them from the bucket.
 - A bucket "output_data_mintexture" containing the images generated.
+
+### Firebase
+We have "output-minetexture" a database that follows the output file tree.
+A python script can be found in /scripts to handle user requests to create a pack as well as updating its information when image are generated.
 
 ## References
 Adapted the lab 2 from the MSLD course:
