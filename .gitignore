@@ -33,6 +33,3 @@ htmlcov/
 # Data
 data/raw/*
 data/processed/*
-
-#Keep csv
-!data/processed/labels.csv
