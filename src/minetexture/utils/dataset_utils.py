@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List
+
 from PIL import Image
 
-from minetexture.config.data_settings import TARGET_SIZE, BG_COLOR, ALLOWED_EXTENSIONS
+from minetexture.config.data_settings import ALLOWED_EXTENSIONS, BG_COLOR, TARGET_SIZE
+
 
 def is_allowed_image(p: Path) -> bool:
     """
@@ -13,9 +14,9 @@ def is_allowed_image(p: Path) -> bool:
     return p.is_file() and p.suffix.lower() in ALLOWED_EXTENSIONS
 
 
-def list_images(path: Path) -> List[Path]:
+def list_images(path: Path) -> list[Path]:
     """
-    List all allowed image files in a given path. 
+    List all allowed image files in a given path.
     """
     if path.is_file():
         return [path] if is_allowed_image(path) else []
@@ -25,12 +26,14 @@ def list_images(path: Path) -> List[Path]:
 
     return sorted(p for p in path.rglob("*") if is_allowed_image(p))
 
+
 def ensure_dir_exists(dir_path: Path) -> Path:
     """
     Check the existence of a directory and create it if it doesn't exist.
     """
     dir_path.mkdir(parents=True, exist_ok=True)
     return dir_path
+
 
 def load_image(path: Path) -> Image.Image:
     """
