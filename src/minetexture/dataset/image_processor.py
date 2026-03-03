@@ -16,7 +16,7 @@ from minetexture.utils.dataset_utils import process_image, list_images, ensure_d
 
 
 class TextureProcessor:
-    """Build a processed texture dataset from raw Minecraft texture packs."""
+    """Build a processed texture dataset from raw Minecraft texture packs"""
     def __init__(self, raw_path: Path = DEFAULT_RAW_DIR, processed_path: Path = DEFAULT_PROCESSED_DIR):
         self.raw_path = raw_path
         self.processed_path = processed_path
@@ -26,6 +26,7 @@ class TextureProcessor:
         self.labels: List[Tuple[str, str, str, str, str]] = []
 
     def process(self) -> None:
+        """Process all texture packs in the raw directory"""
         for pack_dir in sorted(p for p in self.raw_path.iterdir() if p.is_dir()):
             self._process_pack(pack_dir)
 
@@ -33,6 +34,7 @@ class TextureProcessor:
         print(f"[done] wrote labels.csv with {len(self.labels)} rows")
 
     def _process_pack(self, pack_dir: Path) -> None:
+        """Process a single texture pack directory into processed path"""
         style = self._load_style_info(pack_dir)
         if not style:
             print(f"[skip] {pack_dir.name}: missing or invalid style.json")
@@ -59,6 +61,7 @@ class TextureProcessor:
         print(f"{pack_dir.name}: processed {total} textures into {self.processed_path}")
 
     def _load_style_info(self, pack_dir: Path) -> StyleInfo | None:
+        """Load and parse style.json for a texture pack"""
         style_path = pack_dir / "style.json"
         if not style_path.exists():
             return None
@@ -69,6 +72,7 @@ class TextureProcessor:
             return None
 
     def _process_cfg_path(self, pack_dir: Path, cfg_path: str, style: StyleInfo) -> int:
+        """Process a specific texture configuration path (e.g. "assets/minecraft/textures/block") in a texture pack"""
         kind = self.namer.define_kind(cfg_path)
         out_folder = ensure_dir_exists(self.processed_path)
 
@@ -100,6 +104,7 @@ class TextureProcessor:
         return len(images)
 
     def _write_labels_csv(self) -> None:
+        """Write the labels.csv file in the processed directory"""
         ensure_dir_exists(self.processed_path)
         labels_csv = self.processed_path / "labels.csv"
 
