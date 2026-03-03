@@ -14,7 +14,7 @@ The pipeline performs the following operations:
 The objective is to convert heterogeneous resource pack structures into a consistent, reproducible dataset ready for training and experimentation.
 
 ## Input data structure
-Raw data are placed under: 
+Raw data are placed under:
 ```
 data/raw
 ```
@@ -49,7 +49,7 @@ Each processed texture produces:
 - A corresponding `.txt` caption file
 - An entry in `labels.csv`
 
-Example structure: 
+Example structure:
 ```
 data/processed/
 | packName-kind_texture.png
