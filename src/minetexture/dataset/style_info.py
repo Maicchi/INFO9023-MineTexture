@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
-from typing import Any, List
-import json
+from typing import Any
+
 
 class StyleInfo:
     """
@@ -14,14 +15,16 @@ class StyleInfo:
         """
         Initialize the StyleInfo object
 
-        Parameters: 
+        Parameters:
             - style_path: Path to the style.json file
         """
         self.style_path = style_path
-        self.pack, self.style, self.keywords, self.texture_path = self._parse_style_file()
+        self.pack, self.style, self.keywords, self.texture_path = (
+            self._parse_style_file()
+        )
 
-    def _parse_style_file(self) -> tuple[str, str, List[str], str | None]:
-        """ 
+    def _parse_style_file(self) -> tuple[str, str, list[str], str | None]:
+        """
         Parse style.json file.
 
         Return:
@@ -31,21 +34,29 @@ class StyleInfo:
             - texture_path: the path to the texture images (for mods)
         """
         try:
-            data = json.loads(self.style_path.read_text(encoding="utf-8", errors="strict"))
+            data = json.loads(
+                self.style_path.read_text(encoding="utf-8", errors="strict")
+            )
         except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON in style file {self.style_path}: {e}") from e
+            raise ValueError(
+                f"Invalid JSON in style file {self.style_path}: {e}"
+            ) from e
 
         if not isinstance(data, dict):
             raise ValueError(f"style file must be a JSON object: {self.style_path}")
 
         pack = self._as_str(data.get("texture_pack_name"))
         if not pack:
-            raise ValueError(f"Missing or empty 'texture_pack_name' in style file {self.style_path}")
+            raise ValueError(
+                f"Missing or empty 'texture_pack_name' in style file {self.style_path}"
+            )
         pack_slug = self._normalize(pack)
 
         style_value = self._as_str(data.get("style"))
         if not style_value:
-            raise ValueError(f"Missing or empty 'style' in style file {self.style_path}")
+            raise ValueError(
+                f"Missing or empty 'style' in style file {self.style_path}"
+            )
 
         style_slug = self._normalize(style_value)
 
@@ -54,7 +65,7 @@ class StyleInfo:
         # Add style words into keywords too
         style_words = [w for w in re.split(r"\s+", style_value.lower()) if w]
 
-        merged: List[str] = []
+        merged: list[str] = []
         for k in keywords + style_words:
             k2 = k.strip().lower()
             if k2 and k2 not in merged:
@@ -75,7 +86,7 @@ class StyleInfo:
         return value
 
     @staticmethod
-    def _parse_keywords_from_rest(text: Any) -> List[str]:
+    def _parse_keywords_from_rest(text: Any) -> list[str]:
         """
         Extract keywords
         """
@@ -84,7 +95,7 @@ class StyleInfo:
             return []
 
         if isinstance(text, list):
-            out: List[str] = []
+            out: list[str] = []
             for item in text:
                 if item is None:
                     continue
@@ -111,7 +122,7 @@ class StyleInfo:
     @staticmethod
     def _normalize(s: str) -> str:
         """
-        Convert a string into a normalized slug form 
+        Convert a string into a normalized slug form
             - lowercase
             - non-alphanumeric replaced with underscores
         """

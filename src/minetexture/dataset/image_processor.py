@@ -2,28 +2,36 @@ from __future__ import annotations
 
 import csv
 from pathlib import Path
-from typing import List, Tuple
 
 from minetexture.config.data_settings import (
-    DEFAULT_RAW_DIR,
     DEFAULT_PROCESSED_DIR,
-    MINECRAFT_TEXTURE_PATHS
+    DEFAULT_RAW_DIR,
+    MINECRAFT_TEXTURE_PATHS,
 )
-from minetexture.dataset.style_info import StyleInfo
-from minetexture.dataset.naming import TextureNamer
 from minetexture.dataset.caption_builder import CaptionBuilder
-from minetexture.utils.dataset_utils import process_image, list_images, ensure_dir_exists
+from minetexture.dataset.naming import TextureNamer
+from minetexture.dataset.style_info import StyleInfo
+from minetexture.utils.dataset_utils import (
+    ensure_dir_exists,
+    list_images,
+    process_image,
+)
 
 
 class TextureProcessor:
     """Build a processed texture dataset from raw Minecraft texture packs"""
-    def __init__(self, raw_path: Path = DEFAULT_RAW_DIR, processed_path: Path = DEFAULT_PROCESSED_DIR):
+
+    def __init__(
+        self,
+        raw_path: Path = DEFAULT_RAW_DIR,
+        processed_path: Path = DEFAULT_PROCESSED_DIR,
+    ):
         self.raw_path = raw_path
         self.processed_path = processed_path
         self.namer = TextureNamer()
         self.caption_builder = CaptionBuilder()
         # file, labels, pack, style, kind
-        self.labels: List[Tuple[str, str, str, str, str]] = []
+        self.labels: list[tuple[str, str, str, str, str]] = []
 
     def process(self) -> None:
         """Process all texture packs in the raw directory"""
@@ -42,22 +50,26 @@ class TextureProcessor:
 
         total = 0
         scan_paths = list(MINECRAFT_TEXTURE_PATHS)
-        modid = getattr(style, "texture_path", None) 
+        modid = getattr(style, "texture_path", None)
 
         if modid:
             mod_root = pack_dir / "assets" / modid
             if not mod_root.exists():
-                print(f"[warning] {pack_dir.name}: assets/{modid} does not exist (from texture_path='{modid}')")
+                print(
+                    f"[warning] {pack_dir.name}: assets/{modid} does not exist (from texture_path='{modid}')"
+                )
             else:
                 for cfg_path in MINECRAFT_TEXTURE_PATHS:
                     if not cfg_path.startswith("assets/minecraft/textures/"):
                         continue
-                    mod_cfg_path = cfg_path.replace("assets/minecraft/textures/", f"assets/{modid}/textures/", 1)
+                    mod_cfg_path = cfg_path.replace(
+                        "assets/minecraft/textures/", f"assets/{modid}/textures/", 1
+                    )
                     scan_paths.append(mod_cfg_path)
 
         for cfg_path in scan_paths:
             total += self._process_cfg_path(pack_dir, cfg_path, style)
-        
+
         print(f"{pack_dir.name}: processed {total} textures into {self.processed_path}")
 
     def _load_style_info(self, pack_dir: Path) -> StyleInfo | None:
@@ -83,18 +95,20 @@ class TextureProcessor:
             return 0
 
         src_base = src if src.is_dir() else src.parent
- 
-        labels_str = ",".join(style.keywords)  
+
+        labels_str = ",".join(style.keywords)
 
         for src_img in images:
             base_name = self.namer.create_flat_name(kind, src_img, src_base)
             flat_name = f"{style.pack}-{base_name}"
             dst_img = out_folder / f"{flat_name}.png"
-            
+
             img = process_image(src_img)
             img.save(dst_img)
 
-            caption = self.caption_builder.build_caption(src_img.stem, kind, style.keywords)
+            caption = self.caption_builder.build_caption(
+                src_img.stem, kind, style.keywords
+            )
             (out_folder / f"{flat_name}.txt").write_text(caption, encoding="utf-8")
 
             rel_path = str(dst_img.relative_to(self.processed_path)).replace("\\", "/")

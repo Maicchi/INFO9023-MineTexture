@@ -6,8 +6,8 @@ Script to process Minecraft texture packs.
 import argparse
 from pathlib import Path
 
+from minetexture.config.data_settings import DEFAULT_PROCESSED_DIR, DEFAULT_RAW_DIR
 from minetexture.dataset.image_processor import TextureProcessor
-from minetexture.config.data_settings import DEFAULT_RAW_DIR, DEFAULT_PROCESSED_DIR
 
 
 def main():
@@ -16,20 +16,19 @@ def main():
         "--raw-dir",
         type=Path,
         default=DEFAULT_RAW_DIR,
-        help="Directory containing raw texture packs"
+        help="Directory containing raw texture packs",
     )
     parser.add_argument(
         "--processed-dir",
         type=Path,
         default=DEFAULT_PROCESSED_DIR,
-        help="Directory to save processed textures"
+        help="Directory to save processed textures",
     )
-    
+
     args = parser.parse_args()
-    
+
     processor = TextureProcessor(
-        raw_path=args.raw_dir,
-        processed_path=args.processed_dir
+        raw_path=args.raw_dir, processed_path=args.processed_dir
     )
     processor.process()
 
