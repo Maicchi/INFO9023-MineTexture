@@ -32,7 +32,8 @@ htmlcov/
 
 # Data
 data/raw/*
-data/processed/
+data/processed/*
 
-#Keep style.json
+#Keep style.json and csv
 !data/raw/*/style.json
+!data/processed/labels.csv
