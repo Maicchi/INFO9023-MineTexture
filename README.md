@@ -72,7 +72,7 @@ INFO9023-MineTexture/
 ### :link: Links to our tools
 - [Wandb](https://wandb.ai/s-gardier-work/minetexture)
 - [Trello](https://trello.com/b/7UngPFV7/mlsd)
-- [Google Cloud](https://console.cloud.google.com/enable-mfa?project=info9023-minetexture)
+- [Google Cloud](https://console.cloud.google.com/welcome?authuser=1&project=info9023-minetexture)
 
 ## Sprint breakdown
 
