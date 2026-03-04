@@ -73,16 +73,16 @@ INFO9023-MineTexture/
 ## Sprint breakdown
 
 ### Sprint 1 - Project Organization
-- Repository setup :white_check_mark:
-- Gitflow :white_check_mark:
-- CI/CD with Github actions :white_check_mark:
-- Pre-commit hooks :white_check_mark:
+- :white_check_mark: Repository setup
+- :white_check_mark: Gitflow
+- :white_check_mark: CI/CD with Github actions
+- :white_check_mark: Pre-commit hooks
 
 ### Sprint 2 - Data & Model Development
-- EDA :white_check_mark: ([EDA notebook](scripts/EDA.ipynb))
-- Texture preprocessing :white_check_mark: ([Data processing markdown](docs/DATA_PROCESSING.md))
-- Model training :white_check_mark: ([Model training markdown](docs/TRAINING.md))
-- Cloud storage integration :white_check_mark: ([Cloud storage markdown.md](docs/CLOUD.md))
+- :white_check_mark: EDA ([EDA notebook](scripts/EDA.ipynb))
+- :white_check_mark: Texture preprocessing ([Data processing markdown](docs/DATA_PROCESSING.md))
+- :white_check_mark: Model training ([Model training markdown](docs/TRAINING.md))
+- :white_check_mark: Cloud storage integration ([Cloud storage markdown.md](docs/CLOUD.md))
 
 ### Sprint 3 – API & Deployment
 (Upcoming)
