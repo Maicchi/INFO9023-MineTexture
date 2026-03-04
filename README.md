@@ -1,4 +1,4 @@
-# INFO9023-MineTexture: Minecraft texture generation system :sunflower:
+# MineTexture: Minecraft texture generation system :sunflower:
 An end-to-end MLOps system that learns Minecraft texture pack styles and generates new textures through a deployed cloud-based ML pipeline.
 
 ## Project overview
@@ -17,10 +17,6 @@ The system covers the complete MLOps lifecycle:
 ```
 INFO9023-MineTexture/
 │
-├── data/
-│   ├── raw/                    # Original texture packs and their style.json
-│   └── processed/              # Processed 512x512 textures
-│
 ├── docs/
 │   ├── CLOUD.md                # Cloud setup
 │   ├── DATA_PROCESSING.md      # Data processing pipeline
@@ -38,7 +34,7 @@ INFO9023-MineTexture/
 │   ├── uploading_to_gcs.py
 │   ├── downloading_from_gcs.py
 │   ├── EDA.ipynb
-│   └── README.md               # scripts code utilisation explanation
+│   └── README.md
 │
 ├── src/
 │   └── minetexture/
@@ -60,7 +56,7 @@ INFO9023-MineTexture/
 │       └── config/
 │           └── data_settings.py        # configuration for data processing pipeline
 │
-├── tests/                              # (future pytest tests)
+├── tests/
 │
 ├── ruff.toml
 ├── .gitignore
