@@ -31,38 +31,57 @@ Since our project is composed of:
 
 It will be more interesting to use Google Cloud Storage (GCS) and for the output, use GCS for the images and the main structure in Firestore.
 
-### File tree
-**Training dataset**:
+### Buckets (GCS)
+#### Training dataset
+A bucket "training_data_minetexture" following this structure:
+```
 training-data-minetexture/
-| &nbsp; labels.csv
-| &nbsp; ressource_pack_1_name/
-| &nbsp; | &nbsp; category_name/
-| &nbsp; | &nbsp; | &nbsp; item_1_name.png
-| &nbsp; | &nbsp; | &nbsp; item_1_name.txt
-Where the label.csv will contain the path, the main style and the category of the item for each item from all packs.
-
-**Output**:
-output-minetexture/
-| &nbsp; ID_output
-Where the ID_output is a firestore database file that will be structured like this:
-ID_output:{
- &nbsp; remaining:{"name_folder/name_2_item.png", ...}
- &nbsp; done:{"name_folder/name_1_item.png" : object<image_url, ...}
- &nbsp; pack: .zip
- &nbsp; pack:id
- &nbsp; pack:name
-}
-Where the images_url is an url to the image generated which will be stored in a GCS bucket, as well as the .zip.
-
-### Buckets
-We have:
-- A bucket "training_data_minetexture" following the training dataset file tree.
+├── training_data/
+│   └── images/
+│        ├── pack_name-category_item_name.png
+│        ├── pack_name-category_item_name.txt
+│        └── ...
+├── labels.csv
+├── models/
+│   └── minetexture_checkpoints/
+├── other/
+│   ├── gui/
+│   └── entity/
+```
+The folder "other" contain the category of data that are not in the same Minecraft style or have specific structure. (e.g. entity having a skin-like  pattern)
 Python scripts can be found in /scripts to upload textures packs into the bucket and download them from the bucket.
-- A bucket "output_data_mintexture" containing the images generated.
+#### Output images
+A bucket "output_data_mintexture" containing the images generated.
+```
+output_data_mintexture/
+├── pack_id/
+│   ├── filename_image_generated.png
+│   └── ...
+└── ...
+```
 
-### Firebase
-We have "output-minetexture" a firebase that follows the output file tree.
-A python script can be found in /scripts to handle user requests to create a pack as well as updating its information when image are generated.
+### Collection (Firestore)
+We have "output-minetexture" a collection that follows this structure:
+```
+output-minetexture:{                    // Collection
+    pack_id:{                           // Document
+        "name"
+        "nb files left to process"
+        "zip uri"
+        "status"    // in queue, processing, done
+        "createdAt"
+        "updatedAt"
+        images:{                        // Sub-collection
+            "image_0001"{               // Document
+                "filename"
+                "image_url" // gcs uri
+                "createdAt"
+            }
+        }
+    }
+}
+```
+A python script will be found in /scripts to handle user requests to create a pack as well as updating its information when image are generated.
 
 ## References
 Adapted the lab 2 from the MSLD course:
