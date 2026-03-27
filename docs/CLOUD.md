@@ -36,22 +36,16 @@ It will be more interesting to use Google Cloud Storage (GCS) and for the output
 A bucket "training_data_minetexture" following this structure:
 ```
 training-data-minetexture/
-├── training_data/
+├── data_training/
 │   └── images/
 │        ├── pack_name-category_item_name.png
 │        ├── pack_name-category_item_name.txt
 │        └── ...
-├── labels.csv
-├── models/
-│   └── minetexture_checkpoints/
-├── other/
-│   ├── gui/
-│   └── entity/
+└── labels.csv
 ```
-The folder "other" contain the category of data that are not in the same Minecraft style or have specific structure. (e.g. entity having a skin-like  pattern)
 Python scripts can be found in /scripts to upload textures packs into the bucket and download them from the bucket.
 #### Output images
-A bucket "output_data_mintexture" containing the images generated.
+A bucket "output_data_minetexture" containing the images generated.
 ```
 output_data_mintexture/
 ├── pack_id/
