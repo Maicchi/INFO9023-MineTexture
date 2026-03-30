@@ -100,4 +100,6 @@ def delete_gcs_image():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)  # TODO: ENLEVER DEBUG
+    app.run(
+        host="0.0.0.0", port=8080, debug=True, use_reloader=False
+    )  # TODO: ENLEVER DEBUG
