@@ -952,8 +952,6 @@ inference = [
     { name = "peft" },
     { name = "pillow" },
     { name = "safetensors" },
-    { name = "torch" },
-    { name = "torchvision" },
     { name = "transformers" },
 ]
 train = [
@@ -1012,8 +1010,6 @@ inference = [
     { name = "peft", specifier = ">=0.18.1" },
     { name = "pillow", specifier = "==12.1.1" },
     { name = "safetensors", specifier = "==0.4.5" },
-    { name = "torch", specifier = ">=2.1.0" },
-    { name = "torchvision", specifier = ">=0.25.0" },
     { name = "transformers", specifier = "==4.54.1" },
 ]
 train = [

@@ -1,25 +1,103 @@
-from flask import Flask, render_template, request
+import os
+import uuid
+from io import BytesIO
+
+from flask import (
+    Flask,
+    Response,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    session,
+    url_for,
+)
+
+from minetexture.config.inference_settings import (
+    INFERENCE_BUCKET,
+    OUTPUT_DIR,
+)
+from minetexture.inference.service import generate_and_upload
+from minetexture.utils.inference_utils import (
+    delete_image_from_gcs,
+    list_session_blobs,
+    stream_image_from_gcs,
+)
 
 app = Flask(__name__)
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "supersecretkey")
 
-# Hard-coded but should be replaced by a call to the output database
-users_request = [{"id": 1, "prompt_text": "Example Request", "status": "pending"}]
+OUTPUT_DIR_ABS = os.path.abspath(OUTPUT_DIR)
 
 
 @app.route("/", methods=["GET", "POST"])
 def home_page():
-    # input_prompt = ""
+    if "session_id" not in session:
+        session["session_id"] = str(uuid.uuid4())
+
+    session_id = session["session_id"]
+
     if request.method == "POST":
-        # input_prompt = request.form.get("prompt")
-        # TODO: Build the message and send input_prompt to the model
-        return render_template(
-            "homepage.html", users_request=users_request, added_request=True
-        )
+        input_prompt = request.form.get("prompt")
+        if input_prompt:
+            result = generate_and_upload(input_prompt, session_id)
+            if result["in_gcs"] and result["blob_path"]:
+                return redirect(url_for("home_page", selected_blob=result["blob_path"]))
+        return redirect(url_for("home_page"))
+
+    selected_blob = request.args.get("selected_blob")
+    generated_image = selected_blob is not None
+    blob_path = selected_blob if selected_blob else None
+    session_images = (
+        list_session_blobs(INFERENCE_BUCKET, session_id) if INFERENCE_BUCKET else []
+    )
 
     return render_template(
-        "homepage.html", users_request=users_request, added_request=False
+        "homepage.html",
+        generated_image=generated_image,
+        blob_path=blob_path,
+        session_images=session_images,
+    )
+
+
+@app.route("/image")
+def serve_gcs_image():
+    blob_path = request.args.get("blob_path")
+    if not blob_path:
+        return "No blob path provided", 400
+    image_bytes = stream_image_from_gcs(INFERENCE_BUCKET, blob_path)
+    return Response(image_bytes, mimetype="image/png")
+
+
+@app.route("/download")
+def download_gcs_image():
+    blob_path = request.args.get("blob_path")
+    if not blob_path:
+        return "No blob path provided", 400
+    image_bytes = stream_image_from_gcs(INFERENCE_BUCKET, blob_path)
+    filename = blob_path.split("/")[-1]
+    return send_file(
+        BytesIO(image_bytes),
+        mimetype="image/png",
+        as_attachment=True,
+        download_name=filename,
+    )
+
+
+@app.route("/delete", methods=["POST"])
+def delete_gcs_image():
+    blob_path = request.form.get("blob_path")
+    if blob_path:
+        delete_image_from_gcs(INFERENCE_BUCKET, blob_path)
+    selected_blob = request.form.get("selected_blob")
+    if selected_blob and selected_blob == blob_path:
+        return redirect(url_for("home_page"))
+    return redirect(
+        url_for("home_page", selected_blob=selected_blob)
+        if selected_blob
+        else url_for("home_page")
     )
 
 
 if __name__ == "__main__":
-    app.run(debug=True)  # TODO: ENLEVER DEBUG
+    app.run(host="0.0.0.0", port=8080, debug=True)  # TODO: ENLEVER DEBUG

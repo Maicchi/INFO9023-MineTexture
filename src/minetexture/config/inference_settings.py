@@ -15,6 +15,7 @@ DEFAULT_USE_LCM = False
 BASE_MODEL = os.getenv("BASE_MODEL", DEFAULT_BASE_MODEL)
 LORA_PATH = os.getenv("LORA_PATH", DEFAULT_LORA_PATH)
 OUTPUT_DIR = Path(os.getenv("OUTPUT_DIR", str(DEFAULT_OUTPUT_DIR)))
+INFERENCE_BUCKET = os.getenv("INFERENCE_BUCKET", "generated_data_minetexture")
 
 STEPS = int(os.getenv("STEPS", str(DEFAULT_STEPS)))
 GUIDANCE_SCALE = float(os.getenv("GUIDANCE_SCALE", str(DEFAULT_GUIDANCE_SCALE)))
