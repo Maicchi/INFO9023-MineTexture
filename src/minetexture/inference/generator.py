@@ -6,23 +6,8 @@ from pathlib import Path
 
 import torch
 from diffusers import LCMScheduler, StableDiffusionPipeline
-from google.cloud import storage
 
-
-def download_file_from_gcs(gcs_uri: str, local_path: str) -> str:
-    if not gcs_uri.startswith("gs://"):
-        return gcs_uri
-
-    no_prefix = gcs_uri.replace("gs://", "", 1)
-    bucket_name, blob_path = no_prefix.split("/", 1)
-
-    client = storage.Client()
-    bucket = client.bucket(bucket_name)
-    blob = bucket.blob(blob_path)
-
-    Path(local_path).parent.mkdir(parents=True, exist_ok=True)
-    blob.download_to_filename(local_path)
-    return local_path
+from minetexture.utils.inference_utils import download_file_from_gcs
 
 
 def resolve_lora_path(lora_path: str) -> str:
@@ -71,6 +56,7 @@ def generate_image(
     guidance_scale: float = 7.5,
     height: int = 512,
     width: int = 512,
+    in_bucket: bool = False,
 ) -> str:
     result = pipe(
         prompt=prompt,
@@ -82,6 +68,9 @@ def generate_image(
     )
 
     image = result.images[0]
+    if in_bucket:
+        return image
+
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")

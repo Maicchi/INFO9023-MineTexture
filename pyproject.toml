@@ -54,8 +54,9 @@ experiments = [
 ]
 
 inference = [
-    "torch>=2.1.0",
-    "torchvision>=0.25.0",
+    "torch",
+    "torchvision",
+    "torchaudio",
     "diffusers==0.32.1",
     "transformers==4.54.1",
     "accelerate==1.6.0",
