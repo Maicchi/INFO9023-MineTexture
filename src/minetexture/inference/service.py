@@ -26,6 +26,9 @@ _PIPELINES: dict[bool, object] = {}
 
 
 def get_pipeline(use_lcm: bool = USE_LCM):
+    """
+    Return a cached pipeline, building it on first access.
+    """
     if not LORA_PATH:
         raise ValueError("LORA_PATH is not set.")
 
@@ -50,6 +53,9 @@ def generate_from_prompt(
     use_lcm: bool = USE_LCM,
     in_bucket: bool = False,
 ) -> str:
+    """
+    Generate an image from a prompt using config defaults as fallbacks
+    """
     pipe = get_pipeline(use_lcm=use_lcm)
 
     final_negative_prompt = (
@@ -74,6 +80,9 @@ def generate_from_prompt(
 
 
 def slugify(text: str) -> str:
+    """
+    Convert a string into a slug suitable for filenames
+    """
     text = text.lower().strip()
     text = re.sub(r"[^\w\s-]", "", text)
     text = re.sub(r"[\s_-]+", "-", text)
@@ -90,6 +99,9 @@ def generate_and_upload(
     width: int | None = None,
     use_lcm: bool = USE_LCM,
 ) -> dict:
+    """
+    Generate an image and upload it to GCS
+    """
     image = generate_from_prompt(
         prompt=prompt,
         negative_prompt=negative_prompt,
