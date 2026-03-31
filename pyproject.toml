@@ -10,12 +10,19 @@ dependencies = [
     "google-cloud-bigquery==3.40.1",
     "google-cloud-firestore==2.23.0",
     "google-cloud-storage==3.9.0",
-    "pytest==9.0.2",
-    "pre-commit==4.5.1",
-    "ruff==0.9.2",
     "pillow==12.1.1",
     "tqdm>=4.67.3",
 ]
+
+[[tool.uv.index]]
+name = "pytorch-cu121"
+url = "https://download.pytorch.org/whl/cu121"
+explicit = true
+
+[tool.uv.sources]
+torch      = [{ index = "pytorch-cu121", marker = "sys_platform == 'linux'" }]
+torchvision = [{ index = "pytorch-cu121", marker = "sys_platform == 'linux'" }]
+torchaudio  = [{ index = "pytorch-cu121", marker = "sys_platform == 'linux'" }]
 
 [dependency-groups]
 train = [
@@ -63,10 +70,21 @@ inference = [
     "safetensors==0.4.5",
     "pillow==12.1.1",
     "peft>=0.18.1",
+    "fastapi>=0.135.2",
+    "uvicorn[standard]>=0.42.0",
+    "google-cloud-storage==3.9.0",
 ]
 
 dev = [
+    "pytest==9.0.2",
+    "pre-commit==4.5.1",
+    "ruff==0.9.2",
+]
 
+dashboard = [
+    "flask==3.1.2",
+    "google-cloud-storage==3.9.0",
+    "httpx==0.28.1",
 ]
 
 [build-system]
