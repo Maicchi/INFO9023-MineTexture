@@ -2,10 +2,10 @@
 
 ## Overview
 The dashboard is the web frontend of *MineTexture*. It is a Flask web application that lets a user:
-- enter a text prompt
-- display the new or previously generated texture image
-- browse over historical generated textures of the session
-- download and/or delete generated images from Google Cloud Storage
+- Enter a text prompt
+- Display the generated texture image
+- Look at generated textures from the session history
+- Download and/or delete generated images from the Google Cloud Storage bucket
 
 The dashboard does not generate images itself, it communicates with the `inference service` through HTTP that will handle texture generation.
 
@@ -13,8 +13,8 @@ The dashboard does not generate images itself, it communicates with the `inferen
 
 ### Utilisation flow
 1. A user opens the web page
-2. The user creates a session UUID
-3. The user sends a prompt from the form
+2. It creates a session UUID
+3. The user sends a prompt using the form
 4. The dashboard sends an authenticated HTTP request to the inference service
 5. The inference service generates an image and stores it in GCS
 6. The dashboard receives the image and shows it to the user
@@ -24,7 +24,7 @@ The dashboard does not generate images itself, it communicates with the `inferen
 
 | Route | Method | Description |
 | --- | --- | --- |
-| `/` | GET / POST | Homepage where it is possible to submit a prompt, view/delete/download the generated and historical textures |
+| `/` | GET / POST | Homepage where it is possible to submit a prompt, view this session history,delete/download the generated textures |
 | `/image` | GET | Stream a generated image from GCS |
 | `/download` | GET | Download a generated texture from GCS |
 | `/delete` | POST | Delete a generated image from GCS |
