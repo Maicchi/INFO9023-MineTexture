@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 from datetime import datetime
 from pathlib import Path
-
 import torch
 from diffusers import LCMScheduler, StableDiffusionPipeline
 
@@ -11,6 +10,7 @@ from minetexture.utils.inference_utils import download_file_from_gcs
 
 
 def resolve_lora_path(lora_path: str) -> str:
+    """Resolve the LoRA path, downloading from GCS if necessary"""
     if lora_path.startswith("gs://"):
         local_path = os.path.join("data", "model", "tmp", os.path.basename(lora_path))
         return download_file_from_gcs(lora_path, local_path)
@@ -18,6 +18,12 @@ def resolve_lora_path(lora_path: str) -> str:
 
 
 def build_pipeline(base_model: str, lora_path: str, use_lcm: bool = False):
+    """
+    Build the Stable Diffusion pipeline
+        Input:  base model,
+                specified LoRA and 
+                optional LCM integration
+    """
     dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
     pipe = StableDiffusionPipeline.from_pretrained(
@@ -58,6 +64,9 @@ def generate_image(
     width: int = 512,
     in_bucket: bool = False,
 ) -> str:
+    """
+    Run inference and either return the PIL image or save it to disk
+    """
     result = pipe(
         prompt=prompt,
         negative_prompt=negative_prompt,
