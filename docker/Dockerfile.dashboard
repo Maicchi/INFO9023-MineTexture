@@ -1,0 +1,18 @@
+# Taken from the lab 4 on Flask and modified accordingly.
+# To build the image : docker build -t minetexture -f docker/Dockerfile.flask .
+# To run the container : docker run -p 9090:8080 minetexture
+FROM python:3.11-slim
+WORKDIR /app
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+COPY pyproject.toml uv.lock ./
+COPY src/ src/
+
+RUN uv sync --frozen --no-dev --group dashboard
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+EXPOSE 8080
+
+CMD ["gunicorn", "minetexture.dashboard.core:app", "--bind", "0.0.0.0:8080", "--workers", "2", "--timeout", "660"]
