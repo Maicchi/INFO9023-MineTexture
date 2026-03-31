@@ -13,20 +13,19 @@ def main():
     parser.add_argument("--steps", type=int, default=None)
     parser.add_argument("--guidance-scale", type=float, default=None)
     parser.add_argument("--negative-prompt", default=None)
-    parser.add_argument("--base-model", default=None)
-    parser.add_argument("--lora-path", default=None)
-    parser.add_argument("--output-dir", default=None)
     parser.add_argument("--height", type=int, default=None)
     parser.add_argument("--width", type=int, default=None)
     args = parser.parse_args()
 
     output_path = generate_from_prompt(
-        prompt=args.prompt,
-        negative_prompt=args.negative_prompt,
-        steps=args.steps,
-        guidance_scale=args.guidance_scale,
-        use_lcm=args.use_lcm,
-    )
+    prompt=args.prompt,
+    negative_prompt=args.negative_prompt,
+    steps=args.steps,
+    guidance_scale=args.guidance_scale,
+    use_lcm=args.use_lcm,
+    height=args.height,
+    width=args.width,
+)
     print(f"Generated image: {output_path}")
 
 
