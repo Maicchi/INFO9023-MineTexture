@@ -1,0 +1,22 @@
+FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y python3.11 python3-pip curl && rm -rf /var/lib/apt/lists/*
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+COPY pyproject.toml uv.lock ./
+COPY src/ src/
+
+RUN uv sync --frozen --no-dev --group inference
+RUN uv pip install --upgrade \
+    torch==2.10.0 \
+    torchvision==0.25.0 \
+    torchaudio==2.10.0 \
+    --index-url https://download.pytorch.org/whl/cu126
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+EXPOSE 8080
+
+CMD ["uvicorn", "minetexture.inference.api:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "1"]
