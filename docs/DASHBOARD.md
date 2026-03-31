@@ -71,13 +71,25 @@ The following are required:
 ### Docker Deployment
 The container is defined in `docker/Dockerfile.dashboard`.
 
+Both the dashboard and the inference service must run on the same Docker network so they can communicate with each other. First, create a shared network if not existing:
+```bash
+docker network create minetexture-network
+```
+
+Then start the inference service on that network:
+```bash
+docker build -f docker/Dockerfile.inference -t minetexture-inference .
+docker run --env-file .env --gpus all -p 8081:8080 --network minetexture-network --name minetexture-inference minetexture-inference
+```
+
 Build and run it with:
 ```bash
 docker build -f docker/Dockerfile.dashboard -t minetexture-dashboard .
-docker run --env-file .env -p 8080:8080 minetexture-dashboard
+docker run --env-file .env -p 8080:8080 --network minetexture-network --name minetexture-dashboard -e INFERENCE_SERVICE_URL=http://minetexture-inference:8080 minetexture-dashboard
 ```
 
-The `--env-file .env` flag passes all required environment variables including `INFERENCE_SERVICE_URL`, which must point to the port where the inference service is reachable (e.g. `http://localhost:8081`). (under the same docker network)
+The `--env-file .env` flag passes all required environment variables.
+Within a Docker network, containers reach each other by **container name** rather than `localhost`. The `-e INFERENCE_SERVICE_URL=http://minetexture-inference:8080` overrides whatever is set in `.env` for that variable.
 
 The app will then be accessible at `http://localhost:8080`.
 
