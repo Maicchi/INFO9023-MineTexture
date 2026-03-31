@@ -1,4 +1,4 @@
-# Google Cloud
+# Google Cloud ☁️
 
 ## Initial set up
 As we configured it during the lab, you should have access to the project.
@@ -44,18 +44,22 @@ training-data-minetexture/
 └── labels.csv
 ```
 Python scripts can be found in /scripts to upload textures packs into the bucket and download them from the bucket.
+
 #### Output images
-A bucket "output_data_minetexture" containing the images generated.
+Generated images are stored following this structure:
 ```
-output_data_mintexture/
-├── pack_id/
-│   ├── filename_image_generated.png
-│   └── ...
+generated_data_minetexture/
+├── generation/
+│   ├── <session_id>/
+│   │   ├── <slug>-<timestamp>.png
+    │   └── ...
+│   └── ....
 └── ...
 ```
+The slug is derived from the prompt used to generate the image.
 
 ### Collection (Firestore)
-We have "output-minetexture" a collection that follows this structure:
+In the case of a generation of a whole texture pack, a collection "output-minetexture" following this structure could be use :
 ```
 output-minetexture:{                    // Collection
     pack_id:{                           // Document
@@ -75,6 +79,7 @@ output-minetexture:{                    // Collection
     }
 }
 ```
+
 A python script will be found in /scripts to handle user requests to create a pack as well as updating its information when image are generated.
 
 ## References
