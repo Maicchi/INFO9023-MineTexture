@@ -21,7 +21,7 @@ def build_pipeline(base_model: str, lora_path: str, use_lcm: bool = False):
     """
     Build the Stable Diffusion pipeline
         Input:  base model,
-                specified LoRA and 
+                specified LoRA and
                 optional LCM integration
     """
     dtype = torch.float16 if torch.cuda.is_available() else torch.float32
