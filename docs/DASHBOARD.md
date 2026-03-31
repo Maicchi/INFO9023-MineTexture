@@ -77,6 +77,32 @@ docker build -f docker/Dockerfile.dashboard -t minetexture-dashboard .
 docker run --env-file .env -p 8080:8080 minetexture-dashboard
 ```
 
-The `--env-file .env` flag passes all required environment variables including `INFERENCE_SERVICE_URL`, which must point to the port where the inference service is reachable (e.g. `http://localhost:8081`).
+The `--env-file .env` flag passes all required environment variables including `INFERENCE_SERVICE_URL`, which must point to the port where the inference service is reachable (e.g. `http://localhost:8081`). (under the same docker network)
 
 The app will then be accessible at `http://localhost:8080`.
+
+### Cloud Deployment
+
+First, tag and push the image to Google Artifact Registry:
+```bash
+docker tag minetexture-dashboard \
+    europe-west1-docker.pkg.dev/info9023-minetexture/minetexture/dashboard:latest
+
+docker push \
+    europe-west1-docker.pkg.dev/info9023-minetexture/minetexture/dashboard:latest
+```
+
+Then deploy to Cloud Run:
+```bash
+gcloud run deploy dashboard \
+    --image=europe-west1-docker.pkg.dev/info9023-minetexture/minetexture/dashboard:latest \
+    --region=europe-west1 \
+    --project=info9023-minetexture \
+    --min-instances=0 \
+    --memory=512Mi \
+    --cpu=1 \
+    --set-env-vars="GOOGLE_CLOUD_PROJECT=info9023-minetexture,INFERENCE_SERVICE_URL=<INFERENCE_SERVICE_URL>,INFERENCE_API_KEY=<INFERENCE_API_KEY>,FLASK_SECRET_KEY=<FLASK_SECRET_KEY>" \
+    --allow-unauthenticated
+```
+
+> **Note:** `INFERENCE_SERVICE_URL` should be the Cloud Run URL of the deployed inference service. `INFERENCE_API_KEY` and `FLASK_SECRET_KEY` should be set to secure values before deploying to production.
