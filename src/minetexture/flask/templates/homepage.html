@@ -83,14 +83,18 @@
                         <table>
                         <tr>
                             <th>Prompt</th>
-                            <th>Status</th>
+                            <th>Image Preview</th>
                             <th>Download</th>
                         </tr>
                         {% if users_request %}
                             {% for req in users_request %}
                                 <tr>
                                     <td>{{ req.prompt_text }}</td>
-                                    <td>{{ req.status }}</td>
+                                    {% if req.status != "done" %}
+                                        <td><span class="loader"></span></td>
+                                    {% else %}
+                                        <td>{{ req.status }}</td>
+                                    {% endif %}
                                     <td><button class="button-tertiary">Download</button></td>
                                 </tr>
                             {% endfor %}

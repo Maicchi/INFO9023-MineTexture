@@ -1339,6 +1339,7 @@ a:hover{
 }
 
 /* Added code not from minecraft.css */
+/* https://travis.media/blog/css-pulse-effect/ */
 @keyframes pulse {
   0% {
     transform: scale(1);
@@ -1358,6 +1359,7 @@ a:hover{
   animation: pulse 2s infinite;
 }
 
+/* https://www.w3schools.com/css/css_table.asp */
 table {
   font-family: MinecraftRegular;
   border-collapse: collapse;
@@ -1377,4 +1379,28 @@ th {
   text-align: left;
   background-color: #2a641c;
   color: white;
+}
+
+/* https://css-loaders.com/spinner/ */
+.loader{
+  display: block;
+  position: relative;
+  height: 12px;
+  width: 80%;
+  border: 1px solid #fff;
+  overflow: hidden;
+}
+.loader:after{
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background: #28a745;
+  animation: 6s prog ease-in infinite;
+}
+
+@keyframes prog {
+  to  {   width: 100%;}
 }

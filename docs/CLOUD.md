@@ -46,15 +46,15 @@ training-data-minetexture/
 Python scripts can be found in /scripts to upload textures packs into the bucket and download them from the bucket.
 #### Output images
 A bucket "output_data_minetexture" containing the images generated.
+For processing one prompt at a time
 ```
 output_data_mintexture/
-├── pack_id/
-│   ├── filename_image_generated.png
-│   └── ...
+├── id/
+│   └── filename_image_generated.png
 └── ...
 ```
-
 ### Collection (Firestore)
+In case we would want to implement prompting the whole texture pack.
 We have "output-minetexture" a collection that follows this structure:
 ```
 output-minetexture:{                    // Collection
