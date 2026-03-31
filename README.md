@@ -23,7 +23,9 @@ INFO9023-MineTexture/
 │   └── TRAINING.md             # Model training
 │
 ├── docker/
-│   └── Dockerfile.train
+│   ├── Dockerfile.train
+│   ├── Dockerfile.inference
+|   └── Dockerfile.dashboard
 │
 ├── scripts/
 │   └── training/
@@ -34,6 +36,7 @@ INFO9023-MineTexture/
 │   ├── uploading_to_gcs.py
 │   ├── downloading_from_gcs.py
 │   ├── EDA.ipynb
+│   ├── test_inference_service.py
 │   └── README.md
 │
 ├── src/
@@ -46,15 +49,35 @@ INFO9023-MineTexture/
 │       │   ├── naming.py
 │       │   └── style_info.py
 │       │
+│       ├── inference/
+│       │   ├── api.py
+│       │   ├── generator.py
+│       │   └── service.py
+│       │
+│       ├── dashboard/
+│       │   ├── core.py
+│       │   |
+│       │   ├── static/
+│       │   │   └── images/                             # generation examples
+│       │   │       ├── lapis_ingot.png
+│       │   │       ├── steampunk_purple_hat.png
+│       │   │       └── umbrella.png
+│       │   |
+│       │   └── templates/
+│       │       └── homepage.html
+│       │
 │       ├── database/
 │       │
 │       ├── web/
 │       │
 │       ├── utils/
-│       │   └── dataset_utils.py        # utils functions for data processing pipeline
+│       │   ├── inference_utils.py
+│       │   ├── dashboard_utils.py
+│       │   └── dataset_utils.py
 │       │
 │       └── config/
-│           └── data_settings.py        # configuration for data processing pipeline
+│           ├── inference_settings.py
+│           └── data_settings.py
 │
 ├── tests/
 │
@@ -63,6 +86,7 @@ INFO9023-MineTexture/
 ├── uv.lock
 ├── .pre-commit-config.yaml
 ├── README.md
+├── .env-template
 └── .github/workflows/                  # CI/CD pipeline
 ```
 ### :link: Links to our tools
