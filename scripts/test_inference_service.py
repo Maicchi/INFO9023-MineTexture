@@ -18,14 +18,14 @@ def main():
     args = parser.parse_args()
 
     output_path = generate_from_prompt(
-    prompt=args.prompt,
-    negative_prompt=args.negative_prompt,
-    steps=args.steps,
-    guidance_scale=args.guidance_scale,
-    use_lcm=args.use_lcm,
-    height=args.height,
-    width=args.width,
-)
+        prompt=args.prompt,
+        negative_prompt=args.negative_prompt,
+        steps=args.steps,
+        guidance_scale=args.guidance_scale,
+        use_lcm=args.use_lcm,
+        height=args.height,
+        width=args.width,
+    )
     print(f"Generated image: {output_path}")
 
 
