@@ -25,35 +25,42 @@
                     <!-- Header -->
                     <div class="card-header" style="text-align: center;">
                         <h1>Welcome to Minetexture</h1>
-                        <p class="pulse-element" style="color: var(--warning-color);">Generate your own unique Minecraft textures !</p>
+                        <p class="pulse-element" style="color: var(--warning-color);">
+                            Generate your own unique Minecraft textures !
+                        </p>
                     </div>
 
                     <div class="card-body">
                         <!-- Example of prompts -->
                         <div class="container">
                             <h3>How to generate textures ?</h3>
-                            <p style="color: var(--text-color);">Enter your prompt with the item and a description of the desired texture. <br>
-                                Some examples of prompts :
+                            <p style="color: var(--text-color);">
+                                Make a prompt following this template: Item-name Item-type Keywords<br>
+                                - Item-name: the name of the item<br>
+                                - Item-type: either "item" or "block"<br>
+                                - Keywords: adjectives or details you want to add to your texture.<br>
+                                Some examples of prompts:
                             </p>
                             <div class="container">
                                 <div class="grid">
                                     <div class="col-6 col-md-4" style="text-align: center;">
-                                        <img src="/static/images/lapis_ingot.png"
-                                            alt="generated texture for the prompt lapis lazuli ingot"
+                                        <img src="/static/images/flower.png"
+                                            alt="generated texture of a flower"
                                             width="100" height="100">
-                                        <p style="color: var(--text-color);">"Lapis lazuli ingot"</p>
+                                        <p style="color: var(--text-color);">"Flower item floral-themed pink nature-magic"</p>
                                     </div>
                                     <div class="col-6 col-md-4" style="text-align: center;">
-                                        <img src="/static/images/umbrella.png"
-                                            alt="generated texture for the prompt umbrella"
+                                        <img src="/static/images/quartz.png"
+                                            alt="generated texture of a quartz block"
                                             width="100" height="100">
-                                        <p style="color: var(--text-color);">"Umbrella"</p>
+                                        <p style="color: var(--text-color);">"Quartz block blue vanilla mystical-altar magical_fantasy"</p>
                                     </div>
                                     <div class="col-6 col-md-4" style="text-align: center;">
-                                        <img src="/static/images/steampunk_purple_hat.png"
-                                        alt="generated texture for the prompt steampunk purple hat"
-                                        width="100" height="100">
-                                    <p style="color: var(--text-color);">"Steampunk Purple Hat"</p>
+                                        <img src="/static/images/pickaxe.png"
+                                            alt="generated texture of a pickaxe"
+                                            width="100" height="100">
+                                        <p style="color: var(--text-color);">"Pickaxe item purple fantasy-tech magical_fantasy"</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -61,47 +68,50 @@
                     <!-- Form for prompt -->
                     <div class="container">
                         <h3>Try it yourself:</h3>
-                        <div class="form-group">
-                            <center>
+                        <p style="color: var(--text-color);">
+                            For better results, also include any of these as keywords: <br>
+                            magical, floral-themed, nature-magic, techno-fantasy, vibrant-colors,
+                            arcane-energy, mystical-altar, ornamental, fantasy-tech, vanilla, magical_fantasy
+                        </p>
+                        {% if added_request %}
+                            <p style="color: var(--success-color);">Your request has been successfully sent !</p>
+                        {% endif %}
+                        <div class="form-group" style="margin-bottom: 150px;">
                                 <form method="POST" action="/" id="generate-form">
-                                    <input type="text" name="prompt" id="prompt" class="prompt-input"
-                                        placeholder="Enter your prompt here..." style="font-size: 1.5rem;">
-
-                                    <div id="send-btn-wrapper">
-                                        <button class="form-button" id="send-btn"
-                                            style="margin-top: 20px; border:2px solid var(--btn-normal-border-color)">
-                                                Send
-                                        </button>
-                                    </div>
-
-                                    <p id="loading-msg" style="display:none; color: var(--warning-color); margin-top: 20px;">
-                                        ⏳ Generating your texture, please wait...
-                                    </p>
-
-                                    {% if added_request %}
-                                        <p style="color: var(--success-color);">Your request has been successfully sent !</p>
-                                    {% endif %}
-                                </form>   <!-- ← CLOSE HERE -->
-
-                                {% if generated_image %}
-                                    <div style="text-align: center; margin-top: 20px;">
-                                        <h3>Generated Texture:</h3>
-                                        <img src="{{ url_for('serve_gcs_image', blob_path=blob_path) }}"
-                                            width="256" height="256"
-                                            style="image-rendering: pixelated; border: 2px solid white;"
-                                            alt="Generated texture">
-                                        <div style="margin-top: 12px;">
-                                            <a href="{{ url_for('download_gcs_image', blob_path=blob_path) }}" class="button-tertiary">
-                                                Download
-                                            </a>
-                                            <form method="POST" action="{{ url_for('delete_gcs_image') }}" style="display: inline; margin-left: 8px;">
-                                                <input type="hidden" name="blob_path" value="{{ blob_path }}">
-                                                <input type="submit" class="button-tertiary" value="Clean"
-                                                    onclick="return confirm('Delete this image from the bucket?')">
-                                            </form>
+                                    <div style="display:flex; gap: 15px; justify-content: center;">
+                                        <input type="text" name="prompt" id="prompt" class="prompt-input"
+                                            placeholder="Enter your prompt here..." style="font-size: 1.5rem;">
+                                        <div id="send-btn-wrapper">
+                                            <button class="form-button" id="send-btn"
+                                                style="border:2px solid var(--btn-normal-border-color)">
+                                                    Send
+                                            </button>
                                         </div>
                                     </div>
-                                {% endif %}
+                                </form>
+
+                                {% if generated_image %}
+                                    <div style="margin-top: 20px;">
+                                        <h4 style="text-align: center;">Generated Texture:</h4>
+                                            <div style="display:flex; gap: 15px; justify-content: center; margin-top: 20px;">
+                                                <img src="{{ url_for('serve_gcs_image', blob_path=blob_path) }}"
+                                                    width="150" height="150"
+                                                    style="image-rendering: pixelated; border: 2px solid white;"
+                                                    alt="Generated texture">
+                                                <div style="display: flex; flex-direction: column; margin-top: 12px;">
+                                                    <a href="{{ url_for('download_gcs_image', blob_path=blob_path) }}" class="form-button" target="_blank" style="border:2px solid var(--btn-normal-border-color);">
+                                                        Download
+                                                    </a>
+                                                    <form method="POST" action="{{ url_for('delete_gcs_image', blob_path=blob_path) }}" style="display: inline; margin-top: 15px;">
+                                                        <input type="hidden" name="blob_path" value="{{ blob_path }}">
+                                                        <input type="submit" class="button-tertiary" value="Clean"
+                                                            onclick="return confirm('Delete this image from the bucket?')">
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {%endif %}
 
                                 {% if session_images %}
                                     <div style="margin-top: 40px;">
@@ -118,10 +128,10 @@
                                                 <tr style="border-bottom: 1px solid var(--btn-normal-border-color);">
                                                     <td style="padding: 8px;">{{ img.filename }}</td>
                                                     <td style="padding: 8px; text-align: center;">
-                                                        <a href="{{ url_for('home_page', selected_blob=img.blob_path) }}" class="button-tertiary">
+                                                        <a href="{{ url_for('home_page', selected_blob=img.blob_path) }}" class="form-button" style="margin-bottom: 5px; border:2px solid var(--btn-normal-border-color);">
                                                             View
                                                         </a>
-                                                        <a href="{{ url_for('download_gcs_image', blob_path=img.blob_path) }}" class="button-tertiary">
+                                                        <a href="{{ url_for('download_gcs_image', blob_path=img.blob_path) }}" class="form-button" style="margin-bottom: 5px; border:2px solid var(--btn-normal-border-color);">
                                                             Download
                                                         </a>
                                                         <form method="POST" action="{{ url_for('delete_gcs_image') }}" style="display: inline;">
@@ -137,7 +147,6 @@
                                         </table>
                                     </div>
                                 {% endif %}
-                            </center>
                         </div>
                     </div>
                 </div>
@@ -145,7 +154,7 @@
         </row>
     </div>
 
-    <footer class="text-white pl-xs text-center" style="margin-top: 20px;">
+    <footer class="text-white pl-xs text-center" style="margin-top: 10px;">
         CSS Minecraft stylesheet from https://github.com/Jiyath5516F/Minecraft-CSS
     </footer>
 </body>

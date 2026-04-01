@@ -56,12 +56,13 @@ def home_page():
         session["session_id"] = str(uuid.uuid4())
 
     session_id = session["session_id"]
-
+    added_request = False
     if request.method == "POST":
         input_prompt = request.form.get("prompt")
         if input_prompt:
             result = call_inference_service(input_prompt, session_id)
             if result["in_gcs"] and result["blob_path"]:
+                added_request = True
                 return redirect(url_for("home_page", selected_blob=result["blob_path"]))
         return redirect(url_for("home_page"))
 
@@ -77,6 +78,7 @@ def home_page():
         generated_image=generated_image,
         blob_path=blob_path,
         session_images=session_images,
+        added_request=added_request,
     )
 
 
@@ -129,6 +131,4 @@ def delete_gcs_image():
 
 
 if __name__ == "__main__":
-    app.run(
-        host="0.0.0.0", port=8080, debug=True, use_reloader=False
-    )  # TODO: ENLEVER DEBUG
+    app.run(host="0.0.0.0", port=8080, debug=False, use_reloader=False)

@@ -1381,7 +1381,7 @@ th {
   color: white;
 }
 
-/* https://css-loaders.com/spinner/ */
+/* https://css-loaders.com/progress/ */
 .loader{
   display: block;
   position: relative;
@@ -1404,3 +1404,5 @@ th {
 @keyframes prog {
   to  {   width: 100%;}
 }
+
+/* Personal additions */
