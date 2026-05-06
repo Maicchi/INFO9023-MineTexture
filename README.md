@@ -8,10 +8,10 @@ The system covers the complete MLOps lifecycle:
 - Data preprocessing
 - Model training
 - Cloud storage
-- API serving -> To be done
+- API serving
 - Docker deployment
 - Model pipeline
-- Dashboard interaction -> To be done
+- Dashboard interaction
 
 ## Project structure
 ```
@@ -20,10 +20,14 @@ INFO9023-MineTexture/
 ├── docs/
 │   ├── CLOUD.md                # Cloud setup
 │   ├── DATA_PROCESSING.md      # Data processing pipeline
+│   ├── INFERENCE.md            # Inference service
+│   ├── DASHBOARD.md            # API and front-end
 │   └── TRAINING.md             # Model training
 │
 ├── docker/
-│   └── Dockerfile.train
+│   ├── Dockerfile.train
+│   ├── Dockerfile.inference
+|   └── Dockerfile.dashboard
 │
 ├── scripts/
 │   └── training/
@@ -34,6 +38,7 @@ INFO9023-MineTexture/
 │   ├── uploading_to_gcs.py
 │   ├── downloading_from_gcs.py
 │   ├── EDA.ipynb
+│   ├── test_inference_service.py
 │   └── README.md
 │
 ├── src/
@@ -46,15 +51,36 @@ INFO9023-MineTexture/
 │       │   ├── naming.py
 │       │   └── style_info.py
 │       │
+│       ├── inference/
+│       │   ├── api.py
+│       │   ├── generator.py
+│       │   └── service.py
+│       │
+│       ├── dashboard/
+│       │   ├── core.py
+│       │   |
+│       │   ├── static/
+│       │   │   ├── minecraft.css
+│       │   │   └── images/                             # generation examples
+│       │   │       ├── flower.png
+│       │   │       ├── pickaxe.png
+│       │   │       └── quartz.png
+│       │   |
+│       │   └── templates/
+│       │       └── homepage.html
+│       │
 │       ├── database/
 │       │
 │       ├── web/
 │       │
 │       ├── utils/
-│       │   └── dataset_utils.py        # utils functions for data processing pipeline
+│       │   ├── inference_utils.py
+│       │   ├── dashboard_utils.py
+│       │   └── dataset_utils.py
 │       │
 │       └── config/
-│           └── data_settings.py        # configuration for data processing pipeline
+│           ├── inference_settings.py
+│           └── data_settings.py
 │
 ├── tests/
 │
@@ -63,6 +89,7 @@ INFO9023-MineTexture/
 ├── uv.lock
 ├── .pre-commit-config.yaml
 ├── README.md
+├── .env-template
 └── .github/workflows/                  # CI/CD pipeline
 ```
 ### :link: Links to our tools
@@ -82,14 +109,19 @@ INFO9023-MineTexture/
 - :white_check_mark: EDA ([EDA notebook](scripts/EDA.ipynb))
 - :white_check_mark: Texture preprocessing ([Data processing markdown](docs/DATA_PROCESSING.md))
 - :white_check_mark: Model training ([Model training markdown](docs/TRAINING.md))
-- :white_check_mark: Cloud storage integration ([Cloud storage markdown.md](docs/CLOUD.md))
+- :white_check_mark: Cloud storage integration ([Cloud storage markdown](docs/CLOUD.md))
 
 ### Sprint 3 – API & Deployment
-(Upcoming)
+- :white_check_mark: Build REST API to serve model + run locally ([Dashboard markdown](scripts/DASHBOARD.md))
+- :white_check_mark: Package services in container ([Dashboard markdown](scripts/DASHBOARD.md))
+- :white_check_mark: Deploy model serving in the Cloud ([Inference markdown](docs/INFERENCE.md))
 ### Sprint 4 – Model Pipeline
-(Upcoming)
+- :white_check_mark: Pipeline building ([Model training markdown](docs/TRAINING.md) + [Inference markdown](docs/INFERENCE.md))
 
 ### Sprint 5 – Dashboard
+(Upcoming)
+
+### Sprint 6 – Connecting components & clean-up
 (Upcoming)
 
 ## Team

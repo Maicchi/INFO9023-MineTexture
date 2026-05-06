@@ -17,8 +17,6 @@ MINECRAFT_TEXTURE_PATHS = [
     "assets/minecraft/textures/blocks",
     "assets/minecraft/textures/item",
     "assets/minecraft/textures/items",
-    "assets/minecraft/textures/entity",
-    "assets/minecraft/textures/entities",
     "assets/minecraft/textures/gui/hanging_signs",
     "assets/minecraft/textures/map",
     "pack.png",

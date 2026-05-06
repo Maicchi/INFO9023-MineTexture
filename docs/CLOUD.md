@@ -1,4 +1,4 @@
-# Google Cloud
+# Google Cloud ☁️
 
 ## Initial set up
 As we configured it during the lab, you should have access to the project.
@@ -36,32 +36,30 @@ It will be more interesting to use Google Cloud Storage (GCS) and for the output
 A bucket "training_data_minetexture" following this structure:
 ```
 training-data-minetexture/
-├── training_data/
+├── data_training/
 │   └── images/
 │        ├── pack_name-category_item_name.png
 │        ├── pack_name-category_item_name.txt
 │        └── ...
-├── labels.csv
-├── models/
-│   └── minetexture_checkpoints/
-├── other/
-│   ├── gui/
-│   └── entity/
+└── labels.csv
 ```
-The folder "other" contain the category of data that are not in the same Minecraft style or have specific structure. (e.g. entity having a skin-like  pattern)
 Python scripts can be found in /scripts to upload textures packs into the bucket and download them from the bucket.
+
 #### Output images
-A bucket "output_data_mintexture" containing the images generated.
+Generated images are stored following this structure:
 ```
-output_data_mintexture/
-├── pack_id/
-│   ├── filename_image_generated.png
-│   └── ...
+generated_data_minetexture/
+├── generation/
+│   ├── <session_id>/
+│   │   ├── <slug>-<timestamp>.png
+    │   └── ...
+│   └── ....
 └── ...
 ```
+The slug is derived from the prompt used to generate the image.
 
 ### Collection (Firestore)
-We have "output-minetexture" a collection that follows this structure:
+In the case of a generation of a whole texture pack, a collection "output-minetexture" following this structure could be use :
 ```
 output-minetexture:{                    // Collection
     pack_id:{                           // Document
@@ -81,6 +79,7 @@ output-minetexture:{                    // Collection
     }
 }
 ```
+
 A python script will be found in /scripts to handle user requests to create a pack as well as updating its information when image are generated.
 
 ## References
