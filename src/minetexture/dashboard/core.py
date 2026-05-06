@@ -37,7 +37,7 @@ def call_inference_service(prompt: str, session_id: str) -> dict:
     Send a generation request to the inference service
     """
     response = httpx.post(
-        f"{INFERENCE_SERVICE_URL}/generate",
+        f"{INFERENCE_SERVICE_URL}/textures",
         json={"prompt": prompt, "session_id": session_id},
         headers={"X-API-Key": API_KEY},
         timeout=600.0,  # withut GPU: +-9min
