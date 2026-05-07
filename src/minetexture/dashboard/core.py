@@ -110,22 +110,19 @@ def image_file():
     )
 
 
-@app.route("/DELETE", methods=["POST"])
+@app.route("/image", methods=["DELETE"])
 def delete_gcs_image():
-    """
-    Delete an image from GCS and redirect appropriately
-    """
-    blob_path = request.form.get("blob_path")
+    blob_path = request.args.get("blob_path")
     if blob_path:
         delete_image_from_gcs(INFERENCE_BUCKET, blob_path)
-    selected_blob = request.form.get("selected_blob")
+    selected_blob = request.args.get("selected_blob")
     if selected_blob and selected_blob == blob_path:
-        return redirect(url_for("home_page"))
-    return redirect(
-        url_for("home_page", selected_blob=selected_blob)
+        return {"redirect": url_for("home_page")}
+    return {
+        "redirect": url_for("home_page", selected_blob=selected_blob)
         if selected_blob
         else url_for("home_page")
-    )
+    }
 
 
 if __name__ == "__main__":
