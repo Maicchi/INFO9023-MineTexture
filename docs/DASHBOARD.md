@@ -27,7 +27,7 @@ The dashboard does not generate images itself, it communicates with the `inferen
 | `/` | GET / POST | Homepage where it is possible to submit a prompt, view this session history,delete/download the generated textures |
 | `/image` | GET | Stream a generated image from GCS |
 | `/image/file` | GET | Download a generated texture from GCS |
-| `/DELETE` | POST | Delete a generated image from GCS |
+| `/image` | DELETE | Delete a generated image from GCS |
 
 ### Environment variables
 | Variable | Default | Description |
