@@ -99,7 +99,7 @@
                                                     style="image-rendering: pixelated; border: 2px solid white;"
                                                     alt="Generated texture">
                                                 <div style="display: flex; flex-direction: column; margin-top: 12px;">
-                                                    <a href="{{ url_for('download_gcs_image', blob_path=blob_path) }}" class="form-button" target="_blank" style="border:2px solid var(--btn-normal-border-color);">
+                                                    <a href="{{ url_for('image_file', blob_path=blob_path) }}" class="form-button" target="_blank" style="border:2px solid var(--btn-normal-border-color);">
                                                         Download
                                                     </a>
                                                     <form method="POST" action="{{ url_for('delete_gcs_image', blob_path=blob_path) }}" style="display: inline; margin-top: 15px;">
@@ -131,7 +131,7 @@
                                                         <a href="{{ url_for('home_page', selected_blob=img.blob_path) }}" class="form-button" style="margin-bottom: 5px; border:2px solid var(--btn-normal-border-color);">
                                                             View
                                                         </a>
-                                                        <a href="{{ url_for('download_gcs_image', blob_path=img.blob_path) }}" class="form-button" style="margin-bottom: 5px; border:2px solid var(--btn-normal-border-color);">
+                                                        <a href="{{ url_for('image_file', blob_path=img.blob_path) }}" class="form-button" style="margin-bottom: 5px; border:2px solid var(--btn-normal-border-color);">
                                                             Download
                                                         </a>
                                                         <form method="POST" action="{{ url_for('delete_gcs_image') }}" style="display: inline;">

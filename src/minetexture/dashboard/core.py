@@ -92,8 +92,8 @@ def serve_gcs_image():
     return Response(image_bytes, mimetype="image/png")
 
 
-@app.route("/download")
-def download_gcs_image():
+@app.route("/image/file")
+def image_file():
     """
     Download an image from GCS in the dashboard
     """
@@ -110,7 +110,7 @@ def download_gcs_image():
     )
 
 
-@app.route("/delete", methods=["POST"])
+@app.route("/DELETE", methods=["POST"])
 def delete_gcs_image():
     """
     Delete an image from GCS and redirect appropriately
