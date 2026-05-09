@@ -12,6 +12,7 @@ dependencies = [
     "google-cloud-storage==3.9.0",
     "pillow==12.1.1",
     "tqdm>=4.67.3",
+    "httpx>=0.28.1",
 ]
 
 [dependency-groups]
@@ -63,6 +64,8 @@ inference = [
     "fastapi>=0.135.2",
     "uvicorn[standard]>=0.42.0",
     "google-cloud-storage==3.9.0",
+    "numpy==2.4.2",
+    "opencv-python-headless>=4.13.0.92",
 ]
 
 dev = [
