@@ -7,7 +7,7 @@ from pathlib import Path
 import torch
 from diffusers import LCMScheduler, StableDiffusionPipeline
 
-from minetexture.utils.inference_utils import download_file_from_gcs
+from minetexture.utils.inference_utils import download_file_from_gcs, remove_background
 
 
 def resolve_lora_path(lora_path: str) -> str:
@@ -78,6 +78,7 @@ def generate_image(
     )
 
     image = result.images[0]
+    image = remove_background(image)
     if in_bucket:
         return image
 

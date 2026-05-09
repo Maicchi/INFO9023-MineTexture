@@ -1,6 +1,6 @@
 # Taken from the lab 4 on Flask and modified accordingly.
-# To build the image : docker build -t minetexture -f docker/Dockerfile.flask .
-# To run the container : docker run -p 9090:8080 minetexture
+# To build the image : docker build -t minetexture-dashboard -f docker/Dockerfile.dashboard .
+# To run the container : docker run -p 9090:8080 minetexture-dashboard
 FROM python:3.11-slim
 WORKDIR /app
 

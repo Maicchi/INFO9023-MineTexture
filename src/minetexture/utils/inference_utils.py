@@ -1,7 +1,10 @@
 from io import BytesIO
 from pathlib import Path
 
+import cv2
+import numpy as np
 from google.cloud import storage
+from PIL import Image
 
 
 def download_file_from_gcs(gcs_uri: str, local_path: str) -> str:
@@ -36,3 +39,29 @@ def upload_image_to_gcs(image, bucket_name: str, blob_path: str) -> None:
     buffer.seek(0)
 
     blob.upload_from_file(buffer, content_type="image/png")
+
+
+def remove_background(image):
+    """
+    Remove the background from an image
+    """
+    image = np.array(image)
+    if image.shape[2] == 4:
+        image = cv2.cvtColor(image, cv2.COLOR_RGBA2BGR)
+
+    mask = np.zeros(image.shape[:2], np.uint8)
+    backgroundModel = np.zeros((1, 65), np.float64)
+    foregroundModel = np.zeros((1, 65), np.float64)
+    height, width = image.shape[:2]
+    rect = (10, 10, width - 20, height - 20)
+
+    cv2.grabCut(
+        image, mask, rect, backgroundModel, foregroundModel, 5, cv2.GC_INIT_WITH_RECT
+    )
+    mask2 = np.where((mask == 2) | (mask == 0), 0, 1).astype("uint8")
+    kernel = np.ones((3, 3), np.uint8)
+    mask2 = cv2.erode(mask2, kernel, iterations=1)
+    alpha = mask2 * 255
+    b, g, r = cv2.split(image)
+    result = cv2.merge([b, g, r, alpha])
+    return Image.fromarray(result)
