@@ -59,8 +59,6 @@ def remove_background(image):
         image, mask, rect, backgroundModel, foregroundModel, 5, cv2.GC_INIT_WITH_RECT
     )
     mask2 = np.where((mask == 2) | (mask == 0), 0, 1).astype("uint8")
-    kernel = np.ones((3, 3), np.uint8)
-    mask2 = cv2.erode(mask2, kernel, iterations=1)
     alpha = mask2 * 255
     b, g, r = cv2.split(image)
     result = cv2.merge([b, g, r, alpha])
