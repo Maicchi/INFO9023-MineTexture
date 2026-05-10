@@ -1,10 +1,12 @@
 from io import BytesIO
 from pathlib import Path
-
 import cv2
 import numpy as np
 from google.cloud import storage
 from PIL import Image
+import logging
+import re
+from datetime import datetime
 
 
 def download_file_from_gcs(gcs_uri: str, local_path: str) -> str:
@@ -63,3 +65,79 @@ def remove_background(image):
     b, g, r = cv2.split(image)
     result = cv2.merge([b, g, r, alpha])
     return Image.fromarray(result)
+
+
+
+
+def name_datetime(model) -> datetime:
+    """
+    Extract a datetime from the model's display name (expecting format: {name}_{YYYYMMDD-HHMM}),
+    """
+    DATETIME_RE = re.compile(r"_(\d{8}-\d{4})$")
+    m = DATETIME_RE.search(model.display_name or "")
+    if m:
+        try:
+            return datetime.strptime(m.group(1), "%Y%m%d-%H%M")
+        except ValueError:
+            pass
+    # Fallback: use Vertex AI creation time
+    return datetime.utcfromtimestamp(model.create_time.timestamp()) if model.create_time else datetime.min
+    
+def get_model_vertexai(
+    project: str,
+    region: str,
+    model_name: str,
+) -> str | None:
+    """
+    Look up the latest version of the specified model in Vertex AI Model Registry and return the GCS URI of its artifact.
+    """
+    try:
+        from google.cloud import aiplatform
+    except ImportError:
+        logging.warning("google-cloud-aiplatform not installed — skipping Vertex AI lookup.")
+        return None
+
+    try:
+        aiplatform.init(project=project, location=region)
+
+        all_models = aiplatform.Model.list(order_by="create_time desc")
+        mine = [m for m in all_models if m.display_name.startswith(f"{model_name}_")]
+
+        if not mine:
+            logging.info(f"No Vertex AI models found starting with '{model_name}_'.")
+            return None
+
+        latest = max(mine, key=name_datetime)
+        artifact_uri = latest.uri
+
+        if not artifact_uri:
+            logging.warning(f"Model '{latest.display_name}' has no artifact URI.")
+            return None
+
+        logging.info(f"Using Vertex AI model: '{latest.display_name}' (artifact_uri='{artifact_uri}')")
+        return find_safetensors_in_gcs_dir(artifact_uri)
+
+    except Exception as exc:
+        logging.warning(f"Could not reach Vertex AI Model Registry: {exc}")
+        return None
+
+def find_safetensors_in_gcs_dir(gcs_dir: str) -> str | None:
+    """Return the gs:// URI of the first .safetensors file in a GCS directory."""
+    if not gcs_dir.startswith("gs://"):
+        return None
+
+    no_prefix = gcs_dir.removeprefix("gs://")
+    bucket_name, _, prefix = no_prefix.partition("/")
+    prefix = prefix.rstrip("/")
+
+    gcs_client = storage.Client()
+    bucket = gcs_client.bucket(bucket_name)
+
+    list_kwargs = {"prefix": prefix + "/"} if prefix else {}
+    blobs = [b for b in bucket.list_blobs(**list_kwargs) if b.name.endswith(".safetensors")]
+
+    if not blobs:
+        logging.warning(f"No .safetensors file found under GCS path: {gcs_dir}")
+        return None
+
+    return f"gs://{bucket_name}/{blobs[0].name}"
