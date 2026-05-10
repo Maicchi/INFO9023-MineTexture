@@ -1,18 +1,23 @@
 from __future__ import annotations
 
+import logging
 import os
 from datetime import datetime
 from pathlib import Path
-import logging
+
 import torch
 from diffusers import LCMScheduler, StableDiffusionPipeline
 
 from minetexture.config.inference_settings import (
     VERTEX_AI_MODEL_NAME,
     VERTEX_AI_PROJECT,
-    VERTEX_AI_REGION
+    VERTEX_AI_REGION,
 )
-from minetexture.utils.inference_utils import download_file_from_gcs, remove_background, get_model_vertexai
+from minetexture.utils.inference_utils import (
+    download_file_from_gcs,
+    get_model_vertexai,
+    remove_background,
+)
 
 
 def resolve_lora_path(lora_path: str) -> str:
@@ -30,7 +35,9 @@ def resolve_lora_path(lora_path: str) -> str:
         )
         if vertex_uri:
             logging.info(f"[LoRA] Loading from Vertex AI artifact: {vertex_uri}")
-            local_path = os.path.join("data", "model", "tmp", os.path.basename(vertex_uri))
+            local_path = os.path.join(
+                "data", "model", "tmp", os.path.basename(vertex_uri)
+            )
             return download_file_from_gcs(vertex_uri, local_path)
 
         logging.warning(
@@ -44,6 +51,7 @@ def resolve_lora_path(lora_path: str) -> str:
         return download_file_from_gcs(lora_path, local_path)
 
     return lora_path
+
 
 def build_pipeline(base_model: str, lora_path: str, use_lcm: bool = False):
     """
@@ -76,7 +84,6 @@ def build_pipeline(base_model: str, lora_path: str, use_lcm: bool = False):
     else:
         pipe.set_adapters(["minetexture"], adapter_weights=[1.0])
 
-    
     pipe = pipe.to("cuda" if torch.cuda.is_available() else "cpu")
 
     return pipe
