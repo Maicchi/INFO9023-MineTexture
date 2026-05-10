@@ -13,7 +13,8 @@ RUN uv pip install --upgrade \
     torch==2.10.0 \
     torchvision==0.25.0 \
     torchaudio==2.10.0 \
-    --index-url https://download.pytorch.org/whl/cu126
+    --index-url https://download.pytorch.org/whl/cu126 \
+    --extra-index-url https://pypi.org/simple
 
 ENV PATH="/app/.venv/bin:$PATH"
 
