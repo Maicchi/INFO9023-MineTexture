@@ -1,6 +1,7 @@
+import hashlib
 from io import BytesIO
 
-from google.cloud import storage
+from google.cloud import firestore, storage
 
 
 def delete_image_from_gcs(bucket_name: str, blob_path: str) -> None:
@@ -22,18 +23,82 @@ def stream_image_from_gcs(bucket_name: str, blob_path: str) -> bytes:
     return buffer.read()
 
 
-def list_session_blobs(bucket_name: str, session_id: str) -> list[dict]:
-    """List all blobs for a given session, sorted by upload time (most recent first)."""
-    client = storage.Client()
-    blobs = client.list_blobs(bucket_name, prefix=f"generation/{session_id}/")
+def get_user_id(username):
+    "Get the user ID by hashing the username"
+    return hashlib.sha256(username.lower().encode()).hexdigest()
+
+
+def handle_auth(username, password):
+    """Handle user authentication:
+    - Log in: If username exists and password is correct
+    - Create account: if not already existing
+    """
+    user_id = get_user_id(username)
+    db = firestore.Client(database="users-minetexture")
+    user_ref = db.collection("users-minetexture").document(user_id)
+    user_doc = user_ref.get()
+
+    password_hash = hashlib.sha256(password.encode()).hexdigest()
+
+    if user_doc.exists:  # Log in user if exists and password is correct
+        if user_doc.to_dict()["password_hash"] == password_hash:
+            return {"status": "success", "user_id": user_id}
+        else:
+            return {"status": "error"}
+    else:  # Create new user in db
+        user_ref.set({"username": username, "password_hash": password_hash})
+        return {"status": "created", "user_id": user_id}
+
+
+def add_image_url_to_user(user_id: str, blob_path: str) -> None:
+    """Add a generated image entry to the user's 'images' subcollection."""
+    db = firestore.Client(database="users-minetexture")
+    user_ref = db.collection("users-minetexture").document(user_id)
+    images_col = user_ref.collection("images")
+    images_col.add(
+        {
+            "blob_path": blob_path,
+            "filename": blob_path.split("/")[-1],
+            "created_at": firestore.SERVER_TIMESTAMP,
+        }
+    )
+
+
+def list_user_images(user_id: str) -> list[dict]:
+    """List images stored in the user's 'images' subcollection, newest first."""
+    db = firestore.Client(database="users-minetexture")
+    images = (
+        db.collection("users-minetexture")
+        .document(user_id)
+        .collection("images")
+        .order_by("created_at", direction=firestore.Query.DESCENDING)
+        .stream()
+    )
+
     result = []
-    for blob in blobs:
+    for doc in images:
+        d = doc.to_dict()
         result.append(
             {
-                "blob_path": blob.name,
-                "filename": blob.name.split("/")[-1],
-                "updated": blob.updated,
+                "blob_path": d.get("blob_path"),
+                "filename": d.get("filename"),
+                "updated": d.get("created_at"),
             }
         )
-    result.sort(key=lambda x: x["updated"] or "", reverse=True)
     return result
+
+
+def delete_image_firestore(user_id: str, blob_path: str) -> None:
+    """Find and delete the document matching the blob_path."""
+    db = firestore.Client(database="users-minetexture")
+
+    docs = (
+        db.collection("users-minetexture")
+        .document(user_id)
+        .collection("images")
+        .where("blob_path", "==", blob_path)
+        .stream()
+    )
+
+    for doc in docs:
+        doc.reference.delete()

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{url_for('static', filename='minecraft.css')}}">
+    <title>Minetexture</title>
+</head>
+
+<body class="bg-primary text-secondary">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-brand"><a href="{{ url_for('home_page') }}" style="color: var(--hr-top-color);">Minetexture</a></div>
+        <ul class="navbar-nav">
+        <li><a href="{{ url_for('home_page') }}">Home</a></li>
+        <li><a href="{{ url_for('login_page') }}">Log in</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="form-group" style="margin-bottom: 150px; text-align: center;">
+            <h3>Log in / Create Account</h3>
+            <form method="POST" action="/login">
+                <div style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
+                    <div style="display: flex; flex-direction: column; text-align: left; width: 250px;">
+                        <label for="username" style="margin-bottom: 5px;">Username</label>
+                        <input type="text" id="username" name="username" required placeholder="Your username" style="padding: 8px;">
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; text-align: left; width: 250px;">
+                        <label for="password" style="margin-bottom: 5px;">Password</label>
+                        <input type="password" id="password" name="password" required placeholder="Your password" style="padding: 8px;">
+                    </div>
+
+                    <div id="login-btn-wrapper">
+                        <button class="form-button" id="login-btn"
+                            style="border:2px solid var(--btn-normal-border-color)">
+                                Sign in / Sign up
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="text-white pl-xs text-center" style="margin-top: 20px;">
+        CSS Minecraft stylesheet from https://github.com/Jiyath5516F/Minecraft-CSS
+    </footer>
+
+</body>
+</html>

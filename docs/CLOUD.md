@@ -59,24 +59,18 @@ generated_data_minetexture/
 The slug is derived from the prompt used to generate the image.
 
 ### Collection (Firestore)
-In the case of a generation of a whole texture pack, a collection "output-minetexture" following this structure could be use :
+To store users and their images URI in gcs
 ```
-output-minetexture:{                    // Collection
-    pack_id:{                           // Document
-        "name"
-        "nb files left to process"
-        "zip uri"
-        "status"    // in queue, processing, done
-        "createdAt"
-        "updatedAt"
-        images:{                        // Sub-collection
-            "image_0001"{               // Document
-                "filename"
-                "image_url" // gcs uri
-                "createdAt"
+user-minetexture:{                    // Collection
+    user_id:{                           // Username
+        password_hash                   // Hashed sha256
+        images_folder_url{              // Sub-collection
+            "image_0001"{               // Document random uid
+                "image_url"             // gcs uri
             }
         }
     }
+    ....
 }
 ```
 

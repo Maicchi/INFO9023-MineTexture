@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 import os
-from datetime import datetime
+import uuid
 from pathlib import Path
 
 import torch
 from diffusers import LCMScheduler, StableDiffusionPipeline
 
-from minetexture.utils.inference_utils import download_file_from_gcs, remove_background
+from minetexture.utils.dashboard_utils import add_image_url_to_user
+from minetexture.utils.inference_utils import (
+    download_file_from_gcs,
+    remove_background,
+    upload_image_to_gcs,
+)
 
 
 def resolve_lora_path(lora_path: str) -> str:
@@ -34,7 +39,6 @@ def build_pipeline(base_model: str, lora_path: str, use_lcm: bool = False):
     )
     pipe = pipe.to("cuda" if torch.cuda.is_available() else "cpu")
 
-    # Your MineTexture LoRA
     pipe.load_lora_weights(
         pretrained_model_name_or_path_or_dict=os.path.dirname(lora_path),
         weight_name=os.path.basename(lora_path),
@@ -57,6 +61,7 @@ def build_pipeline(base_model: str, lora_path: str, use_lcm: bool = False):
 def generate_image(
     pipe: StableDiffusionPipeline,
     prompt: str,
+    user_id: str,
     output_dir: str,
     negative_prompt: str = "",
     num_inference_steps: int = 30,
@@ -66,7 +71,8 @@ def generate_image(
     in_bucket: bool = False,
 ) -> str:
     """
-    Run inference and either return the PIL image or save it to disk
+    Run inference, generate unique ID for the image, save it to GCS + Firestore
+    and return the path
     """
     result = pipe(
         prompt=prompt,
@@ -79,13 +85,15 @@ def generate_image(
 
     image = result.images[0]
     image = remove_background(image)
+    unique_filename = f"{uuid.uuid4()}.png"
     if in_bucket:
-        return image
-
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    output_path = os.path.join(output_dir, f"generated-{timestamp}.png")
-    image.save(output_path)
-
-    return output_path
+        bucket_name = "generated_data_minetexture"
+        blob_path = f"generation/{unique_filename}"
+        gcs_uri = upload_image_to_gcs(image, bucket_name, blob_path)
+        add_image_url_to_user(user_id, gcs_uri)
+        return gcs_uri
+    else:
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+        output_path = os.path.join(output_dir, unique_filename)
+        image.save(output_path)
+        return output_path

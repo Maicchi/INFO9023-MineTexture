@@ -75,7 +75,9 @@ dev = [
 ]
 
 dashboard = [
+    "datetime>=6.0",
     "flask==3.1.2",
+    "google-cloud-firestore>=2.23.0",
     "google-cloud-storage==3.9.0",
     "httpx==0.28.1",
 ]

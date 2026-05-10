@@ -10,11 +10,14 @@
 <body class="bg-primary text-secondary">
     <!-- Navigation Bar -->
     <nav class="navbar">
-        <div class="navbar-brand">Minetexture</div>
+        <div class="navbar-brand"><a href="{{ url_for('home_page') }}" style="color: var(--hr-top-color);">Minetexture</a></div>
         <ul class="navbar-nav">
-        <li><a href="#">Home</a></li>
-        <li><a href="#">About</a></li>
-        <li><a href="#">Contact</a></li>
+        <li><a href="{{ url_for('home_page') }}">Home</a></li>
+        {% if session.get('user_id') %}
+            <li><a href="{{ url_for('logout') }}">Log out</a></li>
+        {% else %}
+            <li><a href="{{ url_for('login_page') }}">Log in</a></li>
+        {% endif %}
         </ul>
     </nav>
 
@@ -35,7 +38,7 @@
                         <div class="container">
                             <h3>How to generate textures ?</h3>
                             <p style="color: var(--text-color);">
-                                Make a prompt following this template: Item-name Item-type Keywords<br>
+                                Make a prompt following this template:  <b>Item-name  Item-type  Keywords</b><br>
                                 - Item-name: the name of the item<br>
                                 - Item-type: either "item" or "block"<br>
                                 - Keywords: adjectives or details you want to add to your texture.<br>
@@ -47,7 +50,7 @@
                                         <img src="/static/images/flower.png"
                                             alt="generated texture of a flower"
                                             width="100" height="100">
-                                        <p style="color: var(--text-color);">"Flower item floral-themed pink nature-magic"</p>
+                                        <p style="color: var(--text-color);">"Flower item ecological pink vanilla-consistent"</p>
                                     </div>
                                     <div class="col-6 col-md-4" style="text-align: center;">
                                         <img src="/static/images/quartz.png"
@@ -70,14 +73,20 @@
                         <h3>Try it yourself:</h3>
                         <p style="color: var(--text-color);">
                             For better results, also include any of these as keywords: <br>
-                            magical, floral-themed, nature-magic, techno-fantasy, vibrant-colors,
-                            arcane-energy, mystical-altar, ornamental, fantasy-tech, vanilla, magical_fantasy
+                            <b style="color: #4f913cbf;">
+                                magical, floral-themed, nature-magic, techno-fantasy, vibrant-colors,
+                                arcane-energy, mystical-altar, ornamental, fantasy-tech, vanilla, magical_fantasy
+                            </b>
                         </p>
                         {% if added_request %}
                             <p style="color: var(--success-color);">Your request has been successfully sent !</p>
                         {% endif %}
                         <div class="form-group" style="margin-bottom: 150px;">
-                                <form method="POST" action="/" id="generate-form">
+                            {% if session.get('user_id') %}
+                                <form method="POST" action="{{ url_for('home_page') }}" id="generate-form">
+                            {% else %}
+                                <form method="GET" action="{{ url_for('login_page') }}" id="generate-form">
+                            {% endif %}
                                     <div style="display:flex; gap: 15px; justify-content: center;">
                                         <input type="text" name="prompt" id="prompt" class="prompt-input"
                                             placeholder="Enter your prompt here..." style="font-size: 1.5rem;">
@@ -159,7 +168,7 @@
 
     <script>
     function deleteImage(blobPath, selectedBlob) {
-        if (!confirm('Delete this image from the bucket?')) return;
+        if (!confirm('Delete this texture?')) return;
         let url = `/image?blob_path=${encodeURIComponent(blobPath)}`;
         if (selectedBlob) url += `&selected_blob=${encodeURIComponent(selectedBlob)}`;
         fetch(url, { method: 'DELETE' })

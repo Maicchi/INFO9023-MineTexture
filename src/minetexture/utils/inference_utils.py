@@ -26,9 +26,9 @@ def download_file_from_gcs(gcs_uri: str, local_path: str) -> str:
     return local_path
 
 
-def upload_image_to_gcs(image, bucket_name: str, blob_path: str) -> None:
+def upload_image_to_gcs(image, bucket_name: str, blob_path: str) -> str:
     """
-    Upload an image to GCS from memory
+    Upload an image to GCS from memory and return the path
     """
     client = storage.Client()
     bucket = client.bucket(bucket_name)
@@ -39,6 +39,7 @@ def upload_image_to_gcs(image, bucket_name: str, blob_path: str) -> None:
     buffer.seek(0)
 
     blob.upload_from_file(buffer, content_type="image/png")
+    return f"gs://{bucket_name}/{blob_path}"
 
 
 def remove_background(image):

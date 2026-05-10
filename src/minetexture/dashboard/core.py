@@ -1,5 +1,4 @@
 import os
-import uuid
 from io import BytesIO
 
 import httpx
@@ -19,8 +18,11 @@ from minetexture.config.inference_settings import (
     OUTPUT_DIR,
 )
 from minetexture.utils.dashboard_utils import (
+    add_image_url_to_user,
+    delete_image_firestore,
     delete_image_from_gcs,
-    list_session_blobs,
+    handle_auth,
+    list_user_images,
     stream_image_from_gcs,
 )
 
@@ -46,31 +48,32 @@ def call_inference_service(prompt: str, session_id: str) -> dict:
     return response.json()
 
 
+# Flask routes for the dashboard
+# Home page
 @app.route("/", methods=["GET", "POST"])
 def home_page():
     """ "
     Main dashboard page:
     Handles image generation requests
     """
-    if "session_id" not in session:
-        session["session_id"] = str(uuid.uuid4())
+    user_id = session.get("user_id")
 
-    session_id = session["session_id"]
-
-    if request.method == "POST":
+    if request.method == "POST" and user_id:
         input_prompt = request.form.get("prompt")
         if input_prompt:
-            result = call_inference_service(input_prompt, session_id)
+            result = call_inference_service(input_prompt, user_id)
             if result["in_gcs"] and result["blob_path"]:
+                add_image_url_to_user(user_id, result["blob_path"])
                 return redirect(url_for("home_page", selected_blob=result["blob_path"]))
         return redirect(url_for("home_page"))
 
     selected_blob = request.args.get("selected_blob")
     generated_image = selected_blob is not None
     blob_path = selected_blob if selected_blob else None
-    session_images = (
-        list_session_blobs(INFERENCE_BUCKET, session_id) if INFERENCE_BUCKET else []
-    )
+    if user_id:
+        session_images = list_user_images(user_id)
+    else:
+        session_images = []
 
     return render_template(
         "homepage.html",
@@ -78,6 +81,42 @@ def home_page():
         blob_path=blob_path,
         session_images=session_images,
     )
+
+
+# Log in / account creation page
+@app.route("/login", methods=["GET", "POST"])
+def login_page():
+    """ "
+    Login page:
+    Handles user authentication requests
+    """
+    if "user_id" in session:
+        return redirect(url_for("home_page"))
+
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        auth_result = handle_auth(username, password)
+
+        if auth_result["status"] in ["success", "created"]:
+            session["user_id"] = auth_result["user_id"]
+            session["username"] = username
+            return redirect(url_for("home_page"))
+        else:
+            return "Invalid Login", 401
+
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    """ "
+    Logout page:
+    Clears the user session and redirects to home page
+    """
+    session.clear()
+    return redirect(url_for("home_page"))
 
 
 @app.route("/image")
@@ -113,8 +152,10 @@ def image_file():
 @app.route("/image", methods=["DELETE"])
 def delete_gcs_image():
     blob_path = request.args.get("blob_path")
+    user_id = session.get("user_id")
     if blob_path:
         delete_image_from_gcs(INFERENCE_BUCKET, blob_path)
+        delete_image_firestore(user_id, blob_path)
     selected_blob = request.args.get("selected_blob")
     if selected_blob and selected_blob == blob_path:
         return {"redirect": url_for("home_page")}
@@ -126,4 +167,4 @@ def delete_gcs_image():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=False, use_reloader=False)
+    app.run(host="0.0.0.0", port=8080, debug=True, use_reloader=False)
