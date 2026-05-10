@@ -1,12 +1,13 @@
+import logging
+import re
+from datetime import datetime
 from io import BytesIO
 from pathlib import Path
+
 import cv2
 import numpy as np
 from google.cloud import storage
 from PIL import Image
-import logging
-import re
-from datetime import datetime
 
 
 def download_file_from_gcs(gcs_uri: str, local_path: str) -> str:
@@ -67,8 +68,6 @@ def remove_background(image):
     return Image.fromarray(result)
 
 
-
-
 def name_datetime(model) -> datetime:
     """
     Extract a datetime from the model's display name (expecting format: {name}_{YYYYMMDD-HHMM}),
@@ -81,8 +80,13 @@ def name_datetime(model) -> datetime:
         except ValueError:
             pass
     # Fallback: use Vertex AI creation time
-    return datetime.utcfromtimestamp(model.create_time.timestamp()) if model.create_time else datetime.min
-    
+    return (
+        datetime.utcfromtimestamp(model.create_time.timestamp())
+        if model.create_time
+        else datetime.min
+    )
+
+
 def get_model_vertexai(
     project: str,
     region: str,
@@ -94,7 +98,9 @@ def get_model_vertexai(
     try:
         from google.cloud import aiplatform
     except ImportError:
-        logging.warning("google-cloud-aiplatform not installed — skipping Vertex AI lookup.")
+        logging.warning(
+            "google-cloud-aiplatform not installed — skipping Vertex AI lookup."
+        )
         return None
 
     try:
@@ -114,12 +120,15 @@ def get_model_vertexai(
             logging.warning(f"Model '{latest.display_name}' has no artifact URI.")
             return None
 
-        logging.info(f"Using Vertex AI model: '{latest.display_name}' (artifact_uri='{artifact_uri}')")
+        logging.info(
+            f"Using Vertex AI model: '{latest.display_name}' (artifact_uri='{artifact_uri}')"
+        )
         return find_safetensors_in_gcs_dir(artifact_uri)
 
     except Exception as exc:
         logging.warning(f"Could not reach Vertex AI Model Registry: {exc}")
         return None
+
 
 def find_safetensors_in_gcs_dir(gcs_dir: str) -> str | None:
     """Return the gs:// URI of the first .safetensors file in a GCS directory."""
@@ -134,7 +143,9 @@ def find_safetensors_in_gcs_dir(gcs_dir: str) -> str | None:
     bucket = gcs_client.bucket(bucket_name)
 
     list_kwargs = {"prefix": prefix + "/"} if prefix else {}
-    blobs = [b for b in bucket.list_blobs(**list_kwargs) if b.name.endswith(".safetensors")]
+    blobs = [
+        b for b in bucket.list_blobs(**list_kwargs) if b.name.endswith(".safetensors")
+    ]
 
     if not blobs:
         logging.warning(f"No .safetensors file found under GCS path: {gcs_dir}")
