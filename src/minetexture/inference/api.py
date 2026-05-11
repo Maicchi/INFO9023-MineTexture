@@ -16,7 +16,7 @@ class GenerateRequest(BaseModel):
     """
 
     prompt: str
-    session_id: str
+    user_id: str
     steps: int | None = None
     guidance_scale: float | None = None
     use_lcm: bool = False
@@ -31,7 +31,7 @@ def generate(req: GenerateRequest, x_api_key: str | None = Header(default=None))
         raise HTTPException(status_code=403, detail="Invalid API key")
     result = generate_and_upload(
         prompt=req.prompt,
-        session_id=req.session_id,
+        user_id=req.user_id,
         steps=req.steps,
         guidance_scale=req.guidance_scale,
         use_lcm=req.use_lcm,

@@ -34,13 +34,13 @@ OUTPUT_DIR_ABS = os.path.abspath(OUTPUT_DIR)
 INFERENCE_SERVICE_URL = os.getenv("INFERENCE_SERVICE_URL")
 
 
-def call_inference_service(prompt: str, session_id: str) -> dict:
+def call_inference_service(prompt: str, user_id: str) -> dict:
     """
     Send a generation request to the inference service
     """
     response = httpx.post(
         f"{INFERENCE_SERVICE_URL}/textures",
-        json={"prompt": prompt, "session_id": session_id},
+        json={"prompt": prompt, "user_id": user_id},
         headers={"X-API-Key": API_KEY},
         timeout=600.0,  # withut GPU: +-9min
     )
@@ -84,13 +84,18 @@ def home_page():
 
 
 # Log in / account creation page
-@app.route("/login", methods=["GET", "POST"])
-def login_page():
+@app.route("/session", methods=["GET", "POST", "DELETE"])
+def handle_session():
     """ "
     Login page:
     Handles user authentication requests
     """
-    if "user_id" in session:
+    if request.method == "DELETE":
+        session.clear()
+        return {"redirect": url_for("handle_session")}
+
+    user_id = session.get("user_id")
+    if user_id:
         return redirect(url_for("home_page"))
 
     if request.method == "POST":
@@ -107,16 +112,6 @@ def login_page():
             return "Invalid Login", 401
 
     return render_template("login.html")
-
-
-@app.route("/logout")
-def logout():
-    """ "
-    Logout page:
-    Clears the user session and redirects to home page
-    """
-    session.clear()
-    return redirect(url_for("home_page"))
 
 
 @app.route("/image")

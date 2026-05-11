@@ -14,9 +14,9 @@
         <ul class="navbar-nav">
         <li><a href="{{ url_for('home_page') }}">Home</a></li>
         {% if session.get('user_id') %}
-            <li><a href="{{ url_for('logout') }}">Log out</a></li>
+            <li><a href="#" onclick="logoutUser(); return false;">Log out</a></li>
         {% else %}
-            <li><a href="{{ url_for('login_page') }}">Log in</a></li>
+            <li><a href="{{ url_for('handle_session') }}">Log in</a></li>
         {% endif %}
         </ul>
     </nav>
@@ -85,7 +85,7 @@
                             {% if session.get('user_id') %}
                                 <form method="POST" action="{{ url_for('home_page') }}" id="generate-form">
                             {% else %}
-                                <form method="GET" action="{{ url_for('login_page') }}" id="generate-form">
+                                <form method="GET" action="{{ url_for('handle_session') }}" id="generate-form">
                             {% endif %}
                                     <div style="display:flex; gap: 15px; justify-content: center;">
                                         <input type="text" name="prompt" id="prompt" class="prompt-input"
@@ -175,6 +175,18 @@
             .then(res => res.json())
             .then(data => { window.location.href = data.redirect; });
     }
+    </script>
+
+    <script>
+    function logoutUser() {
+        fetch('/session', {
+            method: 'DELETE'
+        })
+        .then(res => res.json())
+        .then(data => {
+            window.location.href = data.redirect;
+        })
+        }
     </script>
 
 </body>

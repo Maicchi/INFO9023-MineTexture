@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime
 
 from minetexture.config.inference_settings import (
     BASE_MODEL,
@@ -20,7 +19,6 @@ from minetexture.inference.generator import (
     generate_image,
     resolve_lora_path,
 )
-from minetexture.utils.inference_utils import upload_image_to_gcs
 
 _PIPELINES: dict[bool, object] = {}
 
@@ -45,6 +43,7 @@ def get_pipeline(use_lcm: bool = USE_LCM):
 
 def generate_from_prompt(
     prompt: str,
+    user_id: str,
     negative_prompt: str | None = None,
     steps: int | None = None,
     guidance_scale: float | None = None,
@@ -69,6 +68,7 @@ def generate_from_prompt(
     return generate_image(
         pipe=pipe,
         prompt=prompt,
+        user_id=user_id,
         negative_prompt=final_negative_prompt,
         output_dir=str(OUTPUT_DIR),
         num_inference_steps=final_steps,
@@ -91,7 +91,7 @@ def slugify(text: str) -> str:
 
 def generate_and_upload(
     prompt: str,
-    session_id: str,
+    user_id: str,
     negative_prompt: str | None = None,
     steps: int | None = None,
     guidance_scale: float | None = None,
@@ -102,8 +102,9 @@ def generate_and_upload(
     """
     Generate an image and upload it to GCS
     """
-    image = generate_from_prompt(
+    blob_path = generate_from_prompt(
         prompt=prompt,
+        user_id=user_id,
         negative_prompt=negative_prompt,
         steps=steps,
         guidance_scale=guidance_scale,
@@ -113,14 +114,9 @@ def generate_and_upload(
         in_bucket=True,
     )
 
-    result = {"blob_path": None, "in_gcs": False}
-
-    if INFERENCE_BUCKET:
-        slug = slugify(prompt)
-        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        blob_path = f"generation/{session_id}/{slug}-{timestamp}.png"
-        upload_image_to_gcs(image, INFERENCE_BUCKET, blob_path)
-        result["blob_path"] = blob_path
-        result["in_gcs"] = True
+    result = {
+        "blob_path": blob_path if INFERENCE_BUCKET else None,
+        "in_gcs": bool(INFERENCE_BUCKET),
+    }
 
     return result

@@ -13,14 +13,14 @@
         <div class="navbar-brand"><a href="{{ url_for('home_page') }}" style="color: var(--hr-top-color);">Minetexture</a></div>
         <ul class="navbar-nav">
         <li><a href="{{ url_for('home_page') }}">Home</a></li>
-        <li><a href="{{ url_for('login_page') }}">Log in</a></li>
+        <li><a href="{{ url_for('handle_session') }}">Log in</a></li>
         </ul>
     </nav>
 
     <div class="container">
         <div class="form-group" style="margin-bottom: 150px; text-align: center;">
             <h3>Log in / Create Account</h3>
-            <form method="POST" action="/login">
+            <form method="POST" action="/session">
                 <div style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
                     <div style="display: flex; flex-direction: column; text-align: left; width: 250px;">
                         <label for="username" style="margin-bottom: 5px;">Username</label>

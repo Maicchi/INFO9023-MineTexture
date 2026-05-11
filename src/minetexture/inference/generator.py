@@ -37,7 +37,8 @@ def build_pipeline(base_model: str, lora_path: str, use_lcm: bool = False):
         torch_dtype=dtype,
         safety_checker=None,
     )
-    pipe = pipe.to("cuda" if torch.cuda.is_available() else "cpu")
+    if torch.cuda.is_available():
+        pipe = pipe.to("cuda")
 
     pipe.load_lora_weights(
         pretrained_model_name_or_path_or_dict=os.path.dirname(lora_path),
@@ -89,9 +90,9 @@ def generate_image(
     if in_bucket:
         bucket_name = "generated_data_minetexture"
         blob_path = f"generation/{unique_filename}"
-        gcs_uri = upload_image_to_gcs(image, bucket_name, blob_path)
-        add_image_url_to_user(user_id, gcs_uri)
-        return gcs_uri
+        upload_image_to_gcs(image, bucket_name, blob_path)
+        add_image_url_to_user(user_id, blob_path)
+        return blob_path
     else:
         Path(output_dir).mkdir(parents=True, exist_ok=True)
         output_path = os.path.join(output_dir, unique_filename)
