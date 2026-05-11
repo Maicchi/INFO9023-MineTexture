@@ -1,6 +1,10 @@
 # MineTexture: Minecraft texture generation system :sunflower:
 An end-to-end MLOps system that learns Minecraft texture pack styles and generates new textures through a deployed cloud-based ML pipeline.
 
+<div style="display: flex; justify-content: space-around; align-items: center;">
+  <img src="misc/components.png" alt="Overall architecture" style="width: 90%;"/>
+</div>
+
 ## Project overview
 MineTexture is an end-to-end Machine learning system that learns the visual style of existing Minecraft texture packs and generates new textures based on the user prompt describing the style.
 
@@ -115,14 +119,23 @@ INFO9023-MineTexture/
 - :white_check_mark: Build REST API to serve model + run locally ([Dashboard markdown](scripts/DASHBOARD.md))
 - :white_check_mark: Package services in container ([Dashboard markdown](scripts/DASHBOARD.md))
 - :white_check_mark: Deploy model serving in the Cloud ([Inference markdown](docs/INFERENCE.md))
+
 ### Sprint 4 – Model Pipeline
 - :white_check_mark: Pipeline building ([Model training markdown](docs/TRAINING.md) + [Inference markdown](docs/INFERENCE.md))
 
 ### Sprint 5 – Dashboard
-(Upcoming)
+- :white_check_mark: Front-end rendered with Jinja2 and Minecraft CSS theme
+- :white_check_mark: REST API with POST/GET/DELETE endpoints for texture management ([Dashboard markdown](scripts/DASHBOARD.md))
+- :white_check_mark: Firestore integration for user authentication and image catalog
+- :white_check_mark: Dashboard deployed to Cloud Run and publicly available ([Dashboard markdown](scripts/DASHBOARD.md))
 
 ### Sprint 6 – Connecting components & clean-up
-(Upcoming)
+- :white_check_mark: Renamed API routes to follow REST naming conventions ([Dashboard markdown](scripts/DASHBOARD.md))
+- :white_check_mark: Replaced session ID with user authentication for storage (Firestore)
+- :white_check_mark: Background removal on generated images
+- :white_check_mark: Inference loads the latest model from Vertex AI Model Registry, with fallback to GCS bucket model
+- :white_check_mark: Automatic deployment of the inference service to Cloud Run on push to `develop` ([deploy.yml](.github/workflows/deploy.yml))
+- :white_check_mark: Automatic deployment of the dashboard to Cloud Run on push to `develop` ([deploy.yml](.github/workflows/deploy.yml))
 
 ## Team
 - GARDIER Simon s192580
