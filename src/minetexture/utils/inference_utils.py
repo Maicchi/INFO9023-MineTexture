@@ -9,6 +9,7 @@ import numpy as np
 from google.cloud import storage
 from PIL import Image
 
+# ADD an unuseful comment to trigger the workflow
 
 def download_file_from_gcs(gcs_uri: str, local_path: str) -> str:
     """
