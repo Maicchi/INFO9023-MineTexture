@@ -166,3 +166,24 @@ gcloud run deploy inference \
 
 > **Note:** `INFERENCE_API_KEY` should be set to a secure value before deploying to production. It must match the key configured on the dashboard side.
 > The service will first look for the latest model registered in Vertex AI Model Registry under the name `minetexture-lora_YYYYMMDD-HHMM`. If none is found, it falls back to `LORA_PATH`.
+
+### Continuous Deployment (CI/CD)
+
+The inference service is automatically built and deployed to Cloud Run when a push is made to the `develop` branch **and** at least one of the following files has changed:
+
+| Path | Reason |
+|---|---|
+| `src/minetexture/inference/**` | Inference service source code |
+| `src/minetexture/utils/inference_utils.py` | Inference utility functions |
+| `src/minetexture/config/inference_settings.py` | Inference configuration and settings |
+| `docker/Dockerfile.inference` | Inference container definition |
+| `pyproject.toml` | Project dependencies |
+| `uv.lock` | Locked dependency versions |
+
+The pipeline (`.github/workflows/cd.yml`) runs these steps in order:
+1. **Build** the Docker image from `docker/Dockerfile.inference`
+2. **Tag** the image with `:latest` and the commit SHA
+3. **Push** both tags to Google Artifact Registry (`europe-west1-docker.pkg.dev/info9023-minetexture/minetexture/inference`)
+4. **Deploy** the commit SHA-tagged image to the `inference` Cloud Run service
+
+A manual deployment can also be triggered at any time from the GitHub Actions tab, with the option to deploy `inference`, `dashboard`, or `both`.
