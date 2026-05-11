@@ -131,7 +131,6 @@ INFO9023-MineTexture/
 
 ### Sprint 6 – Connecting components & clean-up
 - :white_check_mark: Renamed API routes to follow REST naming conventions ([Dashboard markdown](scripts/DASHBOARD.md))
-- :white_check_mark: Replaced session ID with user authentication for storage (Firestore)
 - :white_check_mark: Background removal on generated images
 - :white_check_mark: Inference loads the latest model from Vertex AI Model Registry, with fallback to GCS bucket model
 - :white_check_mark: Automatic deployment of the inference service to Cloud Run on push to `develop` ([deploy.yml](.github/workflows/deploy.yml))
