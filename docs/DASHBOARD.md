@@ -118,3 +118,23 @@ gcloud run deploy dashboard \
 ```
 
 > **Note:** `INFERENCE_SERVICE_URL` should be the Cloud Run URL of the deployed inference service. `INFERENCE_API_KEY` and `FLASK_SECRET_KEY` should be set to secure values before deploying to production.
+
+### Continuous Deployment (CI/CD)
+
+The dashboard is automatically built and deployed to Cloud Run when a push is made to the `develop` branch **and** at least one of the following files has changed:
+
+| Path | Reason |
+|---|---|
+| `src/minetexture/dashboard/**` | Dashboard source code |
+| `src/minetexture/utils/dashboard_utils` | Dashboard utility functions |
+| `docker/Dockerfile.dashboard` | Dashboard container definition |
+| `pyproject.toml` | Project dependencies |
+| `uv.lock` | Locked dependency versions |
+
+The pipeline (`.github/workflows/cd.yml`) runs these steps in order:
+1. **Build** the Docker image from `docker/Dockerfile.dashboard`
+2. **Tag** the image with `:latest` and the commit SHA
+3. **Push** the image to Google Artifact Registry (`europe-west1-docker.pkg.dev/info9023-minetexture/minetexture/dashboard`)
+4. **Deploy** the new image to the `dashboard` Cloud Run service
+
+A manual deployment can also be triggered at any time from the GitHub Actions tab, with the option to deploy `inference`, `dashboard`, or `both`.
