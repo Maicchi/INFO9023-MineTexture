@@ -1,0 +1,142 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+    inputs:
+      service:
+        description: "Which service to deploy"
+        required: true
+        default: "both"
+        type: choice
+        options: [inference, dashboard, both]
+
+env:
+  PROJECT_ID: info9023-minetexture
+  REGION: europe-west1
+  REGISTRY: europe-west1-docker.pkg.dev/info9023-minetexture/minetexture
+
+jobs:
+  # ── Detect which files changed ───────────────────────────────────────────────
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      inference: ${{ steps.filter.outputs.inference }}
+      dashboard: ${{ steps.filter.outputs.dashboard }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            inference:
+              - 'src/minetexture/inference/**'
+              - 'src/minetexture/utils/inference_utils.py'
+              - 'src/minetexture/config/inference_settings.py'
+              - 'docker/Dockerfile.inference'
+              - 'pyproject.toml'
+              - 'uv.lock'
+            dashboard:
+              - 'src/minetexture/dashboard/**'
+              - 'src/minetexture/utils/dashboard_utils.py'
+              - 'docker/Dockerfile.dashboard'
+              - 'pyproject.toml'
+              - 'uv.lock'
+
+  # ── Deploy inference ─────────────────────────────────────────────────────────
+  deploy-inference:
+    needs: changes
+    if: |
+      needs.changes.outputs.inference == 'true' ||
+      github.event_name == 'workflow_dispatch' && (github.event.inputs.service == 'inference' || github.event.inputs.service == 'both')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Build inference image
+        run: |
+          docker build \
+            -f docker/Dockerfile.inference \
+            -t ${{ env.REGISTRY }}/inference:latest \
+            -t ${{ env.REGISTRY }}/inference:${{ github.sha }} \
+            .
+
+      - name: Push inference image
+        run: |
+          docker push ${{ env.REGISTRY }}/inference:latest
+          docker push ${{ env.REGISTRY }}/inference:${{ github.sha }}
+
+      - name: Deploy inference to Cloud Run
+        run: |
+          gcloud run deploy inference \
+            --image=${{ env.REGISTRY }}/inference:${{ github.sha }} \
+            --region=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }} \
+            --gpu=1 \
+            --gpu-type=nvidia-l4 \
+            --no-cpu-throttling \
+            --min-instances=0 \
+            --max-instances=1 \
+            --memory=16Gi \
+            --cpu=4 \
+            --timeout=300 \
+            --allow-unauthenticated \
+            --set-env-vars="GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }},VERTEX_AI_PROJECT=${{ env.PROJECT_ID }},VERTEX_AI_REGION=${{ env.REGION }},VERTEX_AI_MODEL_NAME=minetexture-lora,LORA_PATH=gs://minetexture-checkpoints/Minecraft-Textures.safetensors,INFERENCE_API_KEY=${{ secrets.INFERENCE_API_KEY }}"
+
+  # ── Deploy dashboard ─────────────────────────────────────────────────────────
+  deploy-dashboard:
+    needs: changes
+    if: |
+      needs.changes.outputs.dashboard == 'true' ||
+      github.event_name == 'workflow_dispatch' && (github.event.inputs.service == 'dashboard' || github.event.inputs.service == 'both')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Build dashboard image
+        run: |
+          docker build \
+            -f docker/Dockerfile.dashboard \
+            -t ${{ env.REGISTRY }}/dashboard:latest \
+            -t ${{ env.REGISTRY }}/dashboard:${{ github.sha }} \
+            .
+
+      - name: Push dashboard image
+        run: |
+          docker push ${{ env.REGISTRY }}/dashboard:latest
+          docker push ${{ env.REGISTRY }}/dashboard:${{ github.sha }}
+
+      - name: Deploy dashboard to Cloud Run
+        run: |
+          gcloud run deploy dashboard \
+            --image=${{ env.REGISTRY }}/dashboard:${{ github.sha }} \
+            --region=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }} \
+            --min-instances=0 \
+            --memory=512Mi \
+            --cpu=1 \
+            --allow-unauthenticated \
+            --set-env-vars="GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }},INFERENCE_SERVICE_URL=${{ secrets.INFERENCE_SERVICE_URL }},INFERENCE_API_KEY=${{ secrets.INFERENCE_API_KEY }},FLASK_SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }}"
