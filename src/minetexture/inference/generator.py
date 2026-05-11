@@ -18,6 +18,8 @@ from minetexture.utils.inference_utils import (
     get_model_vertexai,
     remove_background,
 )
+from minetexture.utils.inference_utils import upload_image_to_gcs
+from minetexture.utils.dashboard_utils import add_image_url_to_user
 
 
 def resolve_lora_path(lora_path: str) -> str:
