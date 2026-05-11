@@ -3,6 +3,7 @@ from io import BytesIO
 
 from google.cloud import firestore, storage
 
+# ADD an unuseful comment to trigger the workflow
 
 def delete_image_from_gcs(bucket_name: str, blob_path: str) -> None:
     """Delete an image from GCS."""
