@@ -66,6 +66,7 @@ inference = [
     "google-cloud-storage==3.9.0",
     "numpy==2.4.2",
     "opencv-python-headless>=4.13.0.92",
+    "google-cloud-aiplatform>=1.60.0"
 ]
 
 dev = [
