@@ -1,4 +1,7 @@
 # MineTexture: Minecraft texture generation system :sunflower:
+
+https://github.com/user-attachments/assets/cadb9f8c-5bcd-4ffe-9aba-1b6df485941c
+
 An end-to-end MLOps system that learns Minecraft texture pack styles and generates new textures through a deployed cloud-based ML pipeline.
 
 <div style="display: flex; justify-content: space-around; align-items: center;">
