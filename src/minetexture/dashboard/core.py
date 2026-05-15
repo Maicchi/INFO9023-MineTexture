@@ -37,7 +37,7 @@ def call_inference_service(prompt: str, session_id: str) -> dict:
     Send a generation request to the inference service
     """
     response = httpx.post(
-        f"{INFERENCE_SERVICE_URL}/generate",
+        f"{INFERENCE_SERVICE_URL}/textures",
         json={"prompt": prompt, "session_id": session_id},
         headers={"X-API-Key": API_KEY},
         timeout=600.0,  # withut GPU: +-9min
@@ -92,8 +92,8 @@ def serve_gcs_image():
     return Response(image_bytes, mimetype="image/png")
 
 
-@app.route("/download")
-def download_gcs_image():
+@app.route("/image/file")
+def image_file():
     """
     Download an image from GCS in the dashboard
     """
@@ -110,22 +110,19 @@ def download_gcs_image():
     )
 
 
-@app.route("/delete", methods=["POST"])
+@app.route("/image", methods=["DELETE"])
 def delete_gcs_image():
-    """
-    Delete an image from GCS and redirect appropriately
-    """
-    blob_path = request.form.get("blob_path")
+    blob_path = request.args.get("blob_path")
     if blob_path:
         delete_image_from_gcs(INFERENCE_BUCKET, blob_path)
-    selected_blob = request.form.get("selected_blob")
+    selected_blob = request.args.get("selected_blob")
     if selected_blob and selected_blob == blob_path:
-        return redirect(url_for("home_page"))
-    return redirect(
-        url_for("home_page", selected_blob=selected_blob)
+        return {"redirect": url_for("home_page")}
+    return {
+        "redirect": url_for("home_page", selected_blob=selected_blob)
         if selected_blob
         else url_for("home_page")
-    )
+    }
 
 
 if __name__ == "__main__":

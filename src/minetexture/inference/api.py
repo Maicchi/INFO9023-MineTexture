@@ -22,7 +22,7 @@ class GenerateRequest(BaseModel):
     use_lcm: bool = False
 
 
-@app.post("/generate")
+@app.post("/textures")
 def generate(req: GenerateRequest, x_api_key: str | None = Header(default=None)):
     """
     API endpoint to generate an image from a prompt

@@ -57,19 +57,36 @@ The API key is used to authenticate requests and must match the key configured o
 ```
 
 ### Environment variables
+
+#### Model source (Vertex AI — primary)
 | Variable | Default | Description |
 |---|---|---|
-| `INFERENCE_API_KEY` | `secret` | API key required in the `X-API-Key` header |
+| `VERTEX_AI_PROJECT` | `info9023-minetexture` | GCP project where the Vertex AI Model Registry lives |
+| `VERTEX_AI_REGION` | `europe-west1` | GCP region of the Vertex AI Model Registry |
+| `VERTEX_AI_MODEL_NAME` | `minetexture-lora` | Base display name of the registered model. The service looks for models named `{VERTEX_AI_MODEL_NAME}_YYYYMMDD-HHMM` and picks the most recent one. |
+
+#### Model source (GCS — fallback)
+| Variable | Default | Description |
+|---|---|---|
+| `LORA_PATH` | `gs://minetexture-checkpoints/Minecraft-Textures.safetensors` | GCS URI used as fallback when no model is found in the Vertex AI artifact |
+
+#### Generation
+| Variable | Default | Description |
+|---|---|---|
 | `BASE_MODEL` | `runwayml/stable-diffusion-v1-5` | Base Stable Diffusion model |
-| `LORA_PATH` | `gs://minetexture-checkpoints/Minecraft-Textures.safetensors` | Path to the MineTexture LoRA weights (local or GCS URI) |
-| `INFERENCE_BUCKET` | `generated_data_minetexture` | GCS bucket where generated images are uploaded |
-| `OUTPUT_DIR` | `data/output` | Local fallback output directory |
 | `STEPS` | `30` | Number of diffusion steps |
 | `GUIDANCE_SCALE` | `7.5` | Classifier-free guidance scale |
 | `HEIGHT` | `512` | Output image height in pixels |
 | `WIDTH` | `512` | Output image width in pixels |
 | `NEGATIVE_PROMPT` | `""` | Negative prompt |
 | `USE_LCM` | `false` | Use LCM scheduler (experimental) |
+
+#### API & storage
+| Variable | Default | Description |
+|---|---|---|
+| `INFERENCE_API_KEY` | `secret` | API key required in the `X-API-Key` header |
+| `INFERENCE_BUCKET` | `generated_data_minetexture` | GCS bucket where generated images are uploaded |
+| `OUTPUT_DIR` | `data/output` | Local fallback output directory |
 
 ### GCS Usage
 Generated images are uploaded to the bucket `generated_data_minetexture`. Each session has its own prefix and the images are structured as follows:
@@ -143,8 +160,30 @@ gcloud run deploy inference \
     --memory=16Gi \
     --cpu=4 \
     --timeout=300 \
-    --set-env-vars="GOOGLE_CLOUD_PROJECT=info9023-minetexture,INFERENCE_API_KEY=<INFERENCE_API_KEY>" \
+    --set-env-vars="GOOGLE_CLOUD_PROJECT=info9023-minetexture, VERTEX_AI_PROJECT=info9023-minetexture, VERTEX_AI_REGION=europe-west1, VERTEX_AI_MODEL_NAME=minetexture-lora, LORA_PATH=gs://minetexture-checkpoints/Minecraft-Textures.safetensors, INFERENCE_API_KEY=<INFERENCE_API_KEY>" \
     --allow-unauthenticated
 ```
 
 > **Note:** `INFERENCE_API_KEY` should be set to a secure value before deploying to production. It must match the key configured on the dashboard side.
+> The service will first look for the latest model registered in Vertex AI Model Registry under the name `minetexture-lora_YYYYMMDD-HHMM`. If none is found, it falls back to `LORA_PATH`.
+
+### Continuous Deployment (CI/CD)
+
+The inference service is automatically built and deployed to Cloud Run when a push is made to the `develop` branch **and** at least one of the following files has changed:
+
+| Path | Reason |
+|---|---|
+| `src/minetexture/inference/**` | Inference service source code |
+| `src/minetexture/utils/inference_utils.py` | Inference utility functions |
+| `src/minetexture/config/inference_settings.py` | Inference configuration and settings |
+| `docker/Dockerfile.inference` | Inference container definition |
+| `pyproject.toml` | Project dependencies |
+| `uv.lock` | Locked dependency versions |
+
+The pipeline (`.github/workflows/cd.yml`) runs these steps in order:
+1. **Build** the Docker image from `docker/Dockerfile.inference`
+2. **Tag** the image with `:latest` and the commit SHA
+3. **Push** both tags to Google Artifact Registry (`europe-west1-docker.pkg.dev/info9023-minetexture/minetexture/inference`)
+4. **Deploy** the commit SHA-tagged image to the `inference` Cloud Run service
+
+A manual deployment can also be triggered at any time from the GitHub Actions tab, with the option to deploy `inference`, `dashboard`, or `both`.

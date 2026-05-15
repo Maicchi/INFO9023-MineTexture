@@ -99,14 +99,13 @@
                                                     style="image-rendering: pixelated; border: 2px solid white;"
                                                     alt="Generated texture">
                                                 <div style="display: flex; flex-direction: column; margin-top: 12px;">
-                                                    <a href="{{ url_for('download_gcs_image', blob_path=blob_path) }}" class="form-button" target="_blank" style="border:2px solid var(--btn-normal-border-color);">
+                                                    <a href="{{ url_for('image_file', blob_path=blob_path) }}" class="form-button" target="_blank" style="border:2px solid var(--btn-normal-border-color);">
                                                         Download
                                                     </a>
-                                                    <form method="POST" action="{{ url_for('delete_gcs_image', blob_path=blob_path) }}" style="display: inline; margin-top: 15px;">
-                                                        <input type="hidden" name="blob_path" value="{{ blob_path }}">
-                                                        <input type="submit" class="button-tertiary" value="Clean"
-                                                            onclick="return confirm('Delete this image from the bucket?')">
-                                                    </form>
+                                                    <button class="button-tertiary" style="margin-top: 15px;"
+                                                        onclick="deleteImage('{{ blob_path }}', '{{ blob_path }}')">
+                                                        Clean
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -131,15 +130,15 @@
                                                         <a href="{{ url_for('home_page', selected_blob=img.blob_path) }}" class="form-button" style="margin-bottom: 5px; border:2px solid var(--btn-normal-border-color);">
                                                             View
                                                         </a>
-                                                        <a href="{{ url_for('download_gcs_image', blob_path=img.blob_path) }}" class="form-button" style="margin-bottom: 5px; border:2px solid var(--btn-normal-border-color);">
+                                                        <a href="{{ url_for('image_file', blob_path=img.blob_path) }}" class="form-button" style="margin-bottom: 5px; border:2px solid var(--btn-normal-border-color);">
                                                             Download
                                                         </a>
-                                                        <form method="POST" action="{{ url_for('delete_gcs_image') }}" style="display: inline;">
-                                                            <input type="hidden" name="blob_path" value="{{ img.blob_path }}">
-                                                            <input type="hidden" name="selected_blob" value="{{ blob_path or '' }}">
-                                                            <input type="submit" class="button-tertiary" value="Delete"
-                                                                onclick="return confirm('Delete {{ img.filename }}?')">
-                                                        </form>
+                                                        <button class="button-tertiary"
+                                                            data-blob-path="{{ img.blob_path }}"
+                                                            data-selected-blob="{{ blob_path or '' }}"
+                                                            onclick="deleteImage(this.dataset.blobPath, this.dataset.selectedBlob)">
+                                                            Delete
+                                                        </button>
                                                     </td>
                                                 </tr>
                                                 {% endfor %}
@@ -157,5 +156,17 @@
     <footer class="text-white pl-xs text-center" style="margin-top: 20px;">
         CSS Minecraft stylesheet from https://github.com/Jiyath5516F/Minecraft-CSS
     </footer>
+
+    <script>
+    function deleteImage(blobPath, selectedBlob) {
+        if (!confirm('Delete this image from the bucket?')) return;
+        let url = `/image?blob_path=${encodeURIComponent(blobPath)}`;
+        if (selectedBlob) url += `&selected_blob=${encodeURIComponent(selectedBlob)}`;
+        fetch(url, { method: 'DELETE' })
+            .then(res => res.json())
+            .then(data => { window.location.href = data.redirect; });
+    }
+    </script>
+
 </body>
 </html>
